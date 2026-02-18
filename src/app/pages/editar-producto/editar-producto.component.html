@@ -1,0 +1,111 @@
+<section class="editar">
+  <div class="editar__cabecera">
+    <h1>Editar producto</h1>
+    <p class="editar__sub">Modifica los datos del producto y guarda los cambios.</p>
+  </div>
+
+  <!-- Mensaje de éxito -->
+  <div class="mensaje-exito" *ngIf="mostrarMensajeExito">
+    <p>✅ Cambios guardados correctamente.</p>
+  </div>
+
+  <!-- Mensajes de error o carga -->
+  <p *ngIf="loading" class="estado">Cargando…</p>
+  <p *ngIf="!loading && errorMsg" class="estado estado--error">
+    {{ errorMsg }}
+  </p>
+
+  <!-- Formulario de edición -->
+  <form
+    *ngIf="!loading && !errorMsg"
+    class="editar__formulario"
+    [formGroup]="formulario"
+    (ngSubmit)="guardar()"
+  >
+    <!-- Nombre -->
+    <div class="campo">
+      <label for="name">Nombre</label>
+      <input id="name" type="text" formControlName="name" placeholder="Ej: Sudadera CEØS" />
+      <small class="error" *ngIf="tocado('name')">Nombre obligatorio (min. 2 caracteres).</small>
+    </div>
+
+    <!-- Categoría -->
+    <div class="campo">
+      <label for="category">Categoría</label>
+      <select id="category" formControlName="category">
+        <option value="" disabled>Selecciona una categoría</option>
+        <option *ngFor="let c of categorias" [value]="c">{{ c }}</option>
+      </select>
+      <small class="error" *ngIf="tocado('category')">Categoría obligatoria.</small>
+    </div>
+
+    <!-- Precio -->
+    <div class="campo">
+      <label for="price">Precio (€)</label>
+      <input id="price" type="number" step="0.01" formControlName="price" placeholder="Ej: 59.99" />
+      <small class="error" *ngIf="tocado('price')">Precio obligatorio y mayor que 0.</small>
+    </div>
+
+    <!-- Estado -->
+    <div class="campo">
+      <label for="status">Estado</label>
+      <select id="status" formControlName="status">
+        <option *ngFor="let e of estados" [value]="e">{{ e === 'Proximamente' ? 'Próximamente' : e }}</option>
+      </select>
+      <small class="error" *ngIf="tocado('status')">Estado obligatorio.</small>
+    </div>
+
+    <!-- Stock -->
+    <div class="campo">
+      <label for="stock">Stock</label>
+      <input id="stock" type="number" step="1" min="0" formControlName="stock" placeholder="Ej: 10" />
+      <small class="error" *ngIf="tocado('stock')">Stock obligatorio (mínimo 0).</small>
+    </div>
+
+    <!-- Imagen -->
+    <div class="campo">
+      <label>Imagen</label>
+
+      <div class="imagen">
+        <input type="file" accept="image/png,image/jpeg,image/webp" (change)="seleccionarImagen($event)" />
+        <button
+          type="button"
+          class="boton boton--secundario"
+          (click)="quitarImagen()"
+          [disabled]="!imagenActual"
+        >
+          Quitar imagen
+        </button>
+      </div>
+
+      <p class="nota">Formatos: jpg/png/webp. Tamaño original máximo: 12MB.</p>
+
+      <small class="error" *ngIf="tocado('imageUrl')">Imagen obligatoria.</small>
+
+      <div class="preview" *ngIf="imagenActual">
+        <img [src]="imagenActual" alt="Vista previa" />
+      </div>
+    </div>
+
+    <!-- Descripción -->
+    <div class="campo">
+      <label for="description">Descripción</label>
+      <textarea
+        id="description"
+        rows="5"
+        formControlName="description"
+        placeholder="Describe el producto..."
+      ></textarea>
+      <small class="error" *ngIf="tocado('description')">Descripción obligatoria (min. 10 caracteres).</small>
+    </div>
+
+    <!-- Botón de acción -->
+    <div class="acciones">
+      <button class="boton boton--principal" type="submit" [disabled]="guardando">
+        {{ guardando ? 'Guardando…' : 'Guardar cambios' }}
+      </button>
+
+      <a class="boton boton--link" routerLink="/catalogo">Cancelar</a>
+    </div>
+  </form>
+</section>

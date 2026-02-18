@@ -1,0 +1,141 @@
+<!-- src/app/products/product-list/product-list.component.html -->
+<section class="product-list">
+  <div class="product-list__header">
+    <h1>Catálogo de productos</h1>
+    <a routerLink="/nuevo" class="boton boton--principal">+ Añadir producto</a>
+  </div>
+
+  <!-- Filtros -->
+  <div class="filtros">
+    <!-- Filtro por categoría -->
+    <div class="filtro-group">
+      <label for="categoria">Categoría</label>
+      <select [(ngModel)]="filtroCategoria" id="categoria" class="filtro-select">
+        <option *ngFor="let c of categorias" [value]="c">{{ c }}</option>
+      </select>
+    </div>
+
+    <!-- Filtro por estado -->
+    <div class="filtro-group">
+      <label for="estado">Estado</label>
+      <select [(ngModel)]="filtroEstado" id="estado" class="filtro-select">
+        <option *ngFor="let e of estados" [value]="e">{{ e }}</option>
+      </select>
+    </div>
+
+    <!-- Filtro por stock -->
+    <div class="filtro-group">
+      <label for="stock">Stock</label>
+      <select [(ngModel)]="filtroStock" id="stock" class="filtro-select">
+        <option *ngFor="let opcion of opcionesStock" [value]="opcion.valor">
+          {{ opcion.texto }}
+        </option>
+      </select>
+    </div>
+
+    <!-- Filtros de precio -->
+    <div class="filtro-group">
+      <label for="precioMin">Precio mínimo (€)</label>
+      <input 
+        type="number" 
+        [(ngModel)]="precioMin" 
+        id="precioMin" 
+        placeholder="Ej: 10"
+        class="filtro-input"
+      />
+    </div>
+
+    <div class="filtro-group">
+      <label for="precioMax">Precio máximo (€)</label>
+      <input 
+        type="number" 
+        [(ngModel)]="precioMax" 
+        id="precioMax" 
+        placeholder="Ej: 80"
+        class="filtro-input"
+      />
+    </div>
+
+    <!-- Botón limpiar filtros -->
+    <button class="boton boton--secundario" (click)="limpiarFiltros()">
+      Limpiar filtros
+    </button>
+  </div>
+
+  <!-- Contador de resultados -->
+  <div class="resultados-info" *ngIf="!loading && !errorMsg">
+    Mostrando {{ productosFiltrados.length }} de {{ products.length }} productos
+  </div>
+
+  <!-- Lista de productos -->
+  <div class="productos-grid" *ngIf="!loading && !errorMsg">
+    <div class="producto-card" *ngFor="let producto of productosFiltrados">
+      <!-- Estado del producto: Prioridad a "Oculto" y "Proximamente" -->
+      <div class="producto-estado" 
+           [ngClass]="{
+             'estado--proximamente': producto.status === 'Proximamente',
+             'estado--oculto': producto.status === 'Oculto',
+             'estado--agotado': producto.stock === 0 && producto.status !== 'Proximamente' && producto.status !== 'Oculto',
+             'estado--activo': producto.status === 'Activo' && producto.stock > 0
+           }">
+        {{ 
+          producto.status === 'Proximamente' ? 'PRÓXIMAMENTE' : 
+          (producto.status === 'Oculto' ? 'OCULTO' : 
+          (producto.stock === 0 ? 'AGOTADO' : producto.status)) 
+        }}
+      </div>
+
+      <!-- TODO EL CONTENIDO DEL PRODUCTO ES CLICKEABLE (excepto botones) -->
+      <div class="producto-clickeable" (click)="verDetalle(producto)">
+        <!-- Imagen del producto -->
+        <div class="producto-imagen">
+          <img 
+            [src]="producto.imageUrl" 
+            [alt]="producto.name"
+            (error)="onErrorImagen($event, producto.category)"
+          />
+        </div>
+        
+        <!-- Información del producto -->
+        <div class="producto-info">
+          <h3 class="producto-nombre">{{ producto.name }}</h3>
+          <p class="producto-categoria">{{ producto.category }}</p>
+          <p class="producto-precio">{{ producto.price | currency:'EUR':'symbol':'1.2-2' }}</p>
+          
+          <!-- Stock con colores según cantidad (respetando "Oculto" y "Proximamente") -->
+          <p class="producto-stock" 
+             [ngClass]="{
+               'stock-oculto': producto.status === 'Oculto',
+               'stock-proximamente': producto.status === 'Proximamente',
+               'stock-cero': producto.stock === 0 && producto.status !== 'Proximamente' && producto.status !== 'Oculto',
+               'stock-bajo': producto.stock > 0 && producto.stock <= 10 && producto.status !== 'Proximamente' && producto.status !== 'Oculto',
+               'stock-normal': producto.stock > 10 && producto.status !== 'Proximamente' && producto.status !== 'Oculto'
+             }">
+            Stock: {{ producto.stock }}
+          </p>
+        </div>
+      </div>
+
+      <!-- Acciones (fuera del clickeable) -->
+      <div class="producto-acciones">
+        <button class="boton boton--editar" (click)="editar(producto); $event.stopPropagation()">Editar</button>
+        <button class="boton boton--eliminar" (click)="eliminar(producto); $event.stopPropagation()">Eliminar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mensaje de carga -->
+  <div *ngIf="loading" class="estado-mensaje">
+    Cargando productos...
+  </div>
+
+  <!-- Mensaje de error -->
+  <div *ngIf="errorMsg" class="estado-mensaje estado-mensaje--error">
+    {{ errorMsg }}
+  </div>
+
+  <!-- Mensaje sin resultados -->
+  <div *ngIf="!loading && !errorMsg && productosFiltrados.length === 0" class="estado-mensaje">
+    No hay productos que coincidan con los filtros.
+  </div>
+</section>

@@ -1,0 +1,190 @@
+<!-- src/app/pages/crear-producto/crear-producto.component.html -->
+<section class="crear">
+  <div class="crear__header">
+    <h1>Crear producto</h1>
+    <p class="crear__sub">
+      Introduce los datos del producto y guarda los cambios.
+    </p>
+  </div>
+
+  <p *ngIf="loading" class="estado">Cargando…</p>
+  <p *ngIf="errorMsg" class="estado estado--error">{{ errorMsg }}</p>
+
+  <form
+    *ngIf="!loading"
+    class="crear__formulario"
+    [formGroup]="formulario"
+    (ngSubmit)="enviar()"
+  >
+    <div class="campo">
+      <label for="name">Nombre *</label>
+      <input
+        id="name"
+        type="text"
+        formControlName="name"
+        placeholder="Ej: Sudadera CEØS"
+      />
+      <small class="error" *ngIf="tocado('name')">
+        Nombre obligatorio (mín. 2 caracteres).
+      </small>
+    </div>
+
+    <div class="campo">
+      <label for="category">Categoría *</label>
+      <select id="category" formControlName="category">
+        <option value="" disabled selected>Selecciona una categoría</option>
+        <option *ngFor="let c of categorias" [value]="c">
+          {{ c }}
+        </option>
+      </select>
+      <small class="error" *ngIf="tocado('category')">
+        Categoría obligatoria.
+      </small>
+    </div>
+
+    <div class="campo">
+      <label for="price">Precio (€) *</label>
+      <input
+        id="price"
+        type="number"
+        step="0.01"
+        formControlName="price"
+        placeholder="Ej: 59.99"
+      />
+      <small class="error" *ngIf="tocado('price')">
+        Precio obligatorio y mayor que 0.
+      </small>
+    </div>
+
+    <div class="campo">
+      <label for="status">Estado *</label>
+      <select id="status" formControlName="status">
+        <option *ngFor="let e of estados" [value]="e">
+          {{ e === "Proximamente" ? "Próximamente" : e }}
+        </option>
+      </select>
+      <small class="error" *ngIf="tocado('status')">
+        Estado obligatorio.
+      </small>
+    </div>
+
+    <div class="campo">
+      <label for="stock">Stock *</label>
+      <input
+        id="stock"
+        type="number"
+        step="1"
+        min="0"
+        formControlName="stock"
+        placeholder="Ej: 10"
+      />
+      <small class="error" *ngIf="tocado('stock')">
+        Stock obligatorio (mínimo 0).
+      </small>
+    </div>
+
+    <!-- IMAGEN PRINCIPAL -->
+    <div class="campo">
+      <label>Imagen Principal *</label>
+      <input
+        type="file"
+        accept="image/*"
+        (change)="seleccionarImagenPrincipal($event)"
+      />
+      <div *ngIf="imagenPrincipal" class="imagen-preview-container">
+        <h4>Imagen principal:</h4>
+        <div class="imagen-preview-item">
+          <img [src]="imagenPrincipal" alt="Imagen principal" />
+          <button 
+            type="button" 
+            class="boton boton--pequeno boton--peligro"
+            (click)="quitarImagenPrincipal()"
+          >
+            ×
+          </button>
+        </div>
+      </div>
+      <small class="error" *ngIf="tocado('imageUrl')">
+        Imagen principal obligatoria.
+      </small>
+    </div>
+
+    <!-- IMÁGENES ADICIONALES -->
+    <div class="campo">
+      <label>Imágenes Adicionales</label>
+      <input
+        type="file"
+        accept="image/*"
+        multiple
+        (change)="seleccionarImagenesAdicionales($event)"
+      />
+      <div
+        *ngIf="formulario.value.images && formulario.value.images.length > 0"
+        class="imagenes-preview-container"
+      >
+        <h4>Imágenes adicionales ({{ formulario.value.images.length }}):</h4>
+        <div class="imagenes-preview">
+          <div 
+            class="imagen-preview-item" 
+            *ngFor="let img of formulario.value.images; let i = index"
+          >
+            <img [src]="img" alt="Vista previa {{ i + 1 }}" />
+            <button 
+              type="button" 
+              class="boton boton--pequeno boton--peligro"
+              (click)="quitarImagenAdicional(i)"
+            >
+              ×
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- VISTA PREVIA COMPLETA -->
+    <div *ngIf="todasLasImagenes.length > 0" class="campo vista-previa-completa">
+      <h3>Todas las imágenes ({{ todasLasImagenes.length }}):</h3>
+      <div class="imagenes-preview">
+        <div 
+          class="imagen-preview-item" 
+          *ngFor="let img of todasLasImagenes; let i = index"
+        >
+          <img [src]="img" alt="Producto imagen {{ i + 1 }}" />
+          <span class="badge" *ngIf="i === 0">Principal</span>
+        </div>
+      </div>
+      <button 
+        type="button" 
+        class="boton boton--secundario"
+        (click)="quitarTodasLasImagenes()"
+      >
+        Quitar todas las imágenes
+      </button>
+    </div>
+
+    <div class="campo">
+      <label for="description">Descripción *</label>
+      <textarea
+        id="description"
+        rows="5"
+        formControlName="description"
+        placeholder="Describe el producto..."
+      ></textarea>
+      <small class="error" *ngIf="tocado('description')">
+        Descripción obligatoria (mín. 10 caracteres).
+      </small>
+    </div>
+
+    <div class="acciones">
+      <button
+        class="boton boton--principal"
+        type="submit"
+        [disabled]="guardando"
+      >
+        {{ guardando ? "Guardando…" : "Guardar producto" }}
+      </button>
+
+      <a class="boton boton--link" routerLink="/productos">Cancelar</a>
+    </div>
+  </form>
+</section>

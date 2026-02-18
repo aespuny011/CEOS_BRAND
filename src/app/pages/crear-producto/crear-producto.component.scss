@@ -1,0 +1,154 @@
+.crear {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.crear__header {
+  margin-bottom: 2rem;
+  
+  h1 {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .crear__sub {
+    color: #666;
+  }
+}
+
+.estado {
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  
+  &--error {
+    background: #fee;
+    color: #c00;
+    border: 1px solid #fcc;
+  }
+}
+
+.campo {
+  margin-bottom: 1.5rem;
+  
+  label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: #333;
+  }
+  
+  input, select, textarea {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 1rem;
+    
+    &:focus {
+      outline: none;
+      border-color: #0d0d0f;
+    }
+  }
+  
+  .error {
+    display: block;
+    margin-top: 0.25rem;
+    font-size: 0.875rem;
+    color: #c00;
+  }
+}
+
+.imagenes-preview {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.imagen-preview-item {
+  position: relative;
+  width: 100px;
+  height: 100px;
+  
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 8px;
+  }
+  
+  .badge {
+    position: absolute;
+    top: 0;
+    left: 0;
+    background: #0d0d0f;
+    color: white;
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+    border-radius: 4px;
+  }
+}
+
+.boton {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-block;
+  
+  &--principal {
+    background: #0d0d0f;
+    color: white;
+    
+    &:hover:not(:disabled) {
+      background: #2d2d2f;
+    }
+    
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+  
+  &--secundario {
+    background: #f0f0f0;
+    color: #333;
+    
+    &:hover {
+      background: #e0e0e0;
+    }
+  }
+  
+  &--peligro {
+    background: #c00;
+    color: white;
+    
+    &:hover {
+      background: #a00;
+    }
+  }
+  
+  &--link {
+    background: transparent;
+    color: #666;
+    
+    &:hover {
+      background: #f0f0f0;
+    }
+  }
+  
+  &--pequeno {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+  }
+}
+
+.acciones {
+  display: flex;
+  gap: 1rem;
+  margin-top: 2rem;
+}

@@ -1,0 +1,50 @@
+<section class="wrap">
+  <h2>Añadir producto</h2>
+  <p class="muted">Formulario reactivo con validaciones (required + minLength) y POST al backend simulado.</p>
+
+  <p *ngIf="saving" class="state">Guardando…</p>
+  <p *ngIf="errorMsg" class="state error">{{ errorMsg }}</p>
+
+  <form [formGroup]="form" (ngSubmit)="submit()" class="form">
+    <label>
+      <span>Nombre</span>
+      <input type="text" formControlName="name" placeholder="Ej: Camiseta CEØS Essential" />
+      <small class="err" *ngIf="f.name.invalid && f.name.touched">
+        El nombre es obligatorio y debe tener al menos 3 caracteres.
+      </small>
+    </label>
+
+    <label>
+      <span>Categoría</span>
+      <select formControlName="category">
+        <option *ngFor="let c of categories" [value]="c">{{ c }}</option>
+      </select>
+      <small class="err" *ngIf="f.category.invalid && f.category.touched">La categoría es obligatoria.</small>
+    </label>
+
+    <label>
+      <span>Precio (€)</span>
+      <input type="number" formControlName="price" step="0.01" min="0" />
+      <small class="err" *ngIf="f.price.invalid && f.price.touched">El precio es obligatorio.</small>
+    </label>
+
+    <label>
+      <span>Imagen (URL)</span>
+      <input type="text" formControlName="imageUrl" />
+      <small class="err" *ngIf="f.imageUrl.invalid && f.imageUrl.touched">La imagen es obligatoria.</small>
+    </label>
+
+    <label>
+      <span>Descripción</span>
+      <textarea formControlName="description" rows="4" placeholder="Describe el producto…"></textarea>
+      <small class="err" *ngIf="f.description.invalid && f.description.touched">
+        La descripción es obligatoria y debe tener al menos 10 caracteres.
+      </small>
+    </label>
+
+    <div class="actions">
+      <button class="btn" type="submit" [disabled]="saving">Guardar</button>
+      <a class="btn ghost" routerLink="/productos">Cancelar</a>
+    </div>
+  </form>
+</section>

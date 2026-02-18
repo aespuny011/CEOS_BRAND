@@ -1,0 +1,144 @@
+/* Sección de edición de producto */
+.editar {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 30px 20px;
+}
+
+.editar__cabecera {
+  margin-bottom: 20px;
+}
+
+.editar__sub {
+  font-size: 14px;
+  color: #777;
+}
+
+.estado {
+  margin: 12px 0;
+  font-size: 16px;
+  text-align: center;
+}
+
+.estado--error {
+  color: #d93025;
+}
+
+/* Mensaje de éxito */
+.mensaje-exito {
+  background-color: #e8f5e9;
+  color: #4caf50;
+  padding: 10px;
+  text-align: center;
+  margin-bottom: 20px;
+  border-radius: 8px;
+}
+
+.editar__formulario {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+}
+
+.campo {
+  margin-bottom: 20px;
+}
+
+label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #333;
+}
+
+input,
+select,
+textarea {
+  width: 100%;
+  padding: 12px;
+  font-size: 16px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  margin-top: 5px;
+}
+
+textarea {
+  resize: vertical;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: #111;
+  box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.1);
+}
+
+.nota {
+  font-size: 12px;
+  color: #777;
+  margin-top: 8px;
+}
+
+.error {
+  color: #d93025;
+  font-size: 12px;
+  margin-top: 5px;
+}
+
+.preview {
+  margin-top: 12px;
+}
+
+.preview img {
+  width: 100%;
+  max-height: 200px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.acciones {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 20px;
+}
+
+.boton {
+  padding: 12px 20px;
+  border-radius: 6px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.boton--principal {
+  background-color: #111;
+  color: #fff;
+  border: none;
+}
+
+.boton--principal:hover {
+  background-color: #333;
+}
+
+.boton--secundario {
+  background-color: transparent;
+  color: #111;
+  border: 1px solid #111;
+}
+
+.boton--secundario:hover {
+  background-color: #f1f1f1;
+}
+
+.boton--link {
+  background-color: transparent;
+  color: #888;
+  border: none;
+  font-size: 16px;
+  text-decoration: underline;
+}
+
+.boton--link:hover {
+  color: #111;
+}
