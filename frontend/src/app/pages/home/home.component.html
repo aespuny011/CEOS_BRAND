@@ -1,0 +1,93 @@
+<section class="home">
+  <div class="videos-wrapper">
+    <video
+      #videoIzquierdo
+      class="video video-izquierdo"
+      autoplay
+      muted
+      loop
+      playsinline
+      preload="auto"
+      disableRemotePlayback
+      (error)="onVideoError()"
+      (loadeddata)="onVideoLoaded('izquierdo')">
+      <source src="assets/videos/video-izquierdo.mp4" type="video/mp4" />
+      <source src="assets/videos/video-izquierdo.webm" type="video/webm" />
+      Tu navegador no soporta videos.
+    </video>
+
+    <video
+      #videoDerecho
+      class="video video-derecho"
+      autoplay
+      muted
+      loop
+      playsinline
+      preload="auto"
+      disableRemotePlayback
+      (error)="onVideoError()"
+      (loadeddata)="onVideoLoaded('derecho')">
+      <source src="assets/videos/video-derecho.mp4" type="video/mp4" />
+      <source src="assets/videos/video-derecho.webm" type="video/webm" />
+      Tu navegador no soporta videos.
+    </video>
+
+    <div class="overlay">
+      <h1>CEOS BRAND</h1>
+      <p *ngIf="authService.currentUser; else guestMessage">
+        {{ authService.isAdmin ? 'Administra el catalogo, crea productos y controla la tienda.' : 'Explora el catalogo y compra tus prendas favoritas.' }}
+      </p>
+
+      <ng-template #guestMessage>
+        <p>Registrate o inicia sesion para desbloquear el catalogo y empezar a comprar.</p>
+      </ng-template>
+
+      <div class="cta-group" *ngIf="authService.currentUser; else guestActions">
+        <ng-container *ngIf="authService.isAdmin; else customerActions">
+          <a routerLink="/productos" class="boton">Ver catalogo</a>
+          <a routerLink="/nuevo" class="boton boton--ghost">Crear producto</a>
+        </ng-container>
+
+        <ng-template #customerActions>
+          <a routerLink="/productos" class="boton">Ir al catalogo</a>
+          <a routerLink="/carrito" class="boton boton--ghost">Ver carrito</a>
+        </ng-template>
+      </div>
+
+      <ng-template #guestActions>
+        <div class="cta-group">
+          <a routerLink="/login" class="boton">Inicia sesion</a>
+          <a routerLink="/register" class="boton boton--ghost">Registrate</a>
+        </div>
+      </ng-template>
+    </div>
+  </div>
+</section>
+
+<div class="interaction-overlay" (click)="reproducirVideos()" (touchstart)="reproducirVideos()"></div>
+
+<section class="home-products" *ngIf="featuredProducts.length">
+  <div class="home-products__header">
+    <div>
+      <p class="home-products__eyebrow">Catalogo visible</p>
+      <h2>Productos que ya estan en la web</h2>
+    </div>
+    <a routerLink="/productos" class="home-products__link" *ngIf="authService.currentUser; else loginToView">
+      Ver catalogo completo
+    </a>
+    <ng-template #loginToView>
+      <a routerLink="/login" class="home-products__link">Inicia sesion para comprar</a>
+    </ng-template>
+  </div>
+
+  <div class="home-products__grid">
+    <article class="home-products__card" *ngFor="let product of featuredProducts">
+      <img [src]="product.imageUrl" [alt]="product.name" />
+      <div class="home-products__info">
+        <p>{{ product.category }}</p>
+        <h3>{{ product.name }}</h3>
+        <strong>{{ product.price | currency:'EUR':'symbol':'1.2-2' }}</strong>
+      </div>
+    </article>
+  </div>
+</section>

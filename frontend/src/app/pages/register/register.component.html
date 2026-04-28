@@ -1,0 +1,38 @@
+<section class="auth-page">
+  <div class="auth-card">
+    <p class="eyebrow">Nueva cuenta</p>
+    <h1>Registrate</h1>
+    <p class="intro">Crea tu usuario para entrar al catalogo, guardar productos en tu carrito y comprar.</p>
+
+    <form [formGroup]="formulario" (ngSubmit)="enviar()">
+      <label>
+        <span>Nombre</span>
+        <input type="text" formControlName="name" placeholder="Tu nombre" />
+        <small class="field-error" *ngIf="getFieldError('name')">{{ getFieldError('name') }}</small>
+      </label>
+
+      <label>
+        <span>Email</span>
+        <input type="email" formControlName="email" placeholder="tu@email.com" />
+        <small class="field-error" *ngIf="getFieldError('email')">{{ getFieldError('email') }}</small>
+      </label>
+
+      <label>
+        <span>Contrasena</span>
+        <input type="password" formControlName="password" placeholder="Minimo 6 caracteres" />
+        <small class="field-error" *ngIf="getFieldError('password')">{{ getFieldError('password') }}</small>
+      </label>
+
+      <p class="error" *ngIf="errorMsg">{{ errorMsg }}</p>
+
+      <button type="submit" [disabled]="loading">
+        {{ loading ? 'Creando cuenta...' : 'Crear cuenta' }}
+      </button>
+    </form>
+
+    <p class="switch">
+      ¿Ya tienes cuenta?
+      <a routerLink="/login">Inicia sesion</a>
+    </p>
+  </div>
+</section>

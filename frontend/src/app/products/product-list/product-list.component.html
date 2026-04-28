@@ -1,0 +1,142 @@
+<section class="product-list">
+  <div class="product-list__header">
+    <h1>Catalogo de productos</h1>
+    <a *ngIf="authService.isAdmin" routerLink="/nuevo" class="boton boton--principal">+ Añadir producto</a>
+  </div>
+
+  <div class="filtros">
+    <div class="filtro-group">
+      <label for="categoria">Categoria</label>
+      <select [(ngModel)]="filtroCategoria" id="categoria" class="filtro-select">
+        <option *ngFor="let c of categorias" [value]="c">{{ c }}</option>
+      </select>
+    </div>
+
+    <div class="filtro-group">
+      <label for="estado">Estado</label>
+      <select [(ngModel)]="filtroEstado" id="estado" class="filtro-select">
+        <option *ngFor="let e of estados" [value]="e">{{ e }}</option>
+      </select>
+    </div>
+
+    <div class="filtro-group">
+      <label for="stock">Stock</label>
+      <select [(ngModel)]="filtroStock" id="stock" class="filtro-select">
+        <option *ngFor="let opcion of opcionesStock" [value]="opcion.valor">
+          {{ opcion.texto }}
+        </option>
+      </select>
+    </div>
+
+    <div class="filtro-group">
+      <label for="precioMin">Precio minimo (EUR)</label>
+      <input type="number" [(ngModel)]="precioMin" id="precioMin" placeholder="Ej: 10" class="filtro-input" />
+    </div>
+
+    <div class="filtro-group">
+      <label for="precioMax">Precio maximo (EUR)</label>
+      <input type="number" [(ngModel)]="precioMax" id="precioMax" placeholder="Ej: 80" class="filtro-input" />
+    </div>
+
+    <button class="boton boton--secundario" (click)="limpiarFiltros()">Limpiar filtros</button>
+  </div>
+
+  <div class="resultados-info" *ngIf="!loading && !errorMsg">
+    Mostrando {{ productosFiltrados.length }} de {{ products.length }} productos
+  </div>
+
+  <div class="productos-grid" *ngIf="!loading && !errorMsg">
+    <div class="producto-card" *ngFor="let producto of productosFiltrados">
+      <div
+        class="producto-estado"
+        [ngClass]="{
+          'estado--proximamente': producto.status === 'Proximamente',
+          'estado--oculto': producto.status === 'Oculto',
+          'estado--agotado': producto.stock === 0 && producto.status !== 'Proximamente' && producto.status !== 'Oculto',
+          'estado--activo': producto.status === 'Activo' && producto.stock > 0
+        }">
+        {{
+          producto.status === 'Proximamente'
+            ? 'PROXIMAMENTE'
+            : producto.status === 'Oculto'
+              ? 'OCULTO'
+              : producto.stock === 0
+                ? 'AGOTADO'
+                : producto.status
+        }}
+      </div>
+
+      <div class="producto-clickeable" (click)="verDetalle(producto)">
+        <div class="producto-imagen">
+          <img [src]="producto.imageUrl" [alt]="producto.name" (error)="onErrorImagen($event, producto.category)" />
+        </div>
+
+        <div class="producto-info">
+          <h3 class="producto-nombre">{{ producto.name }}</h3>
+          <p class="producto-categoria">{{ producto.category }}</p>
+          <p class="producto-precio">{{ producto.price | currency:'EUR':'symbol':'1.2-2' }}</p>
+
+          <p
+            *ngIf="authService.isAdmin"
+            class="producto-stock"
+            [ngClass]="{
+              'stock-oculto': producto.status === 'Oculto',
+              'stock-proximamente': producto.status === 'Proximamente',
+              'stock-cero': producto.stock === 0 && producto.status !== 'Proximamente' && producto.status !== 'Oculto',
+              'stock-bajo': producto.stock > 0 && producto.stock <= 10 && producto.status !== 'Proximamente' && producto.status !== 'Oculto',
+              'stock-normal': producto.stock > 10 && producto.status !== 'Proximamente' && producto.status !== 'Oculto'
+            }">
+            Stock: {{ producto.stock }}
+          </p>
+        </div>
+      </div>
+
+      <div class="producto-acciones" *ngIf="authService.isAdmin; else customerActions">
+        <button class="boton boton--editar" (click)="editar(producto); $event.stopPropagation()">Editar</button>
+        <button class="boton boton--eliminar" (click)="eliminar(producto); $event.stopPropagation()">Eliminar</button>
+      </div>
+
+      <ng-template #customerActions>
+        <div class="producto-acciones">
+          <button class="boton boton--editar" (click)="verDetalle(producto); $event.stopPropagation()">Ver detalle</button>
+          <button
+            class="boton boton--principal boton--icono"
+            [disabled]="!canPurchase(producto)"
+            (click)="requestAddToCart(producto); $event.stopPropagation()"
+            [attr.aria-label]="canPurchase(producto) ? 'Añadir al carrito' : 'No disponible'">
+            <span aria-hidden="true">🛒</span>
+          </button>
+        </div>
+      </ng-template>
+    </div>
+  </div>
+
+  <div *ngIf="loading" class="estado-mensaje">
+    Cargando productos...
+  </div>
+
+  <div *ngIf="errorMsg" class="estado-mensaje estado-mensaje--error">
+    {{ errorMsg }}
+  </div>
+
+  <div *ngIf="!loading && !errorMsg && productosFiltrados.length === 0" class="estado-mensaje">
+    No hay productos que coincidan con los filtros.
+  </div>
+</section>
+
+<div class="cart-modal" *ngIf="productPendingCart" (click)="cancelAddToCart()">
+  <div class="cart-modal__dialog" (click)="$event.stopPropagation()">
+    <p class="cart-modal__eyebrow">Añadir al carrito</p>
+    <h2>{{ productPendingCart.name }}</h2>
+    <p class="cart-modal__text">¿Quieres añadir este producto al carrito?</p>
+
+    <div class="cart-modal__actions">
+      <button type="button" class="cart-modal__button cart-modal__button--ghost" (click)="cancelAddToCart()">
+        Cancelar
+      </button>
+      <button type="button" class="cart-modal__button" (click)="confirmAddToCart()">
+        Añadir
+      </button>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,95 @@
+<section class="product-detail">
+  <button class="boton-volver" (click)="volver()">
+    ← Volver al catalogo
+  </button>
+
+  <div *ngIf="loading" class="estado-mensaje">
+    Cargando producto...
+  </div>
+
+  <div *ngIf="errorMsg" class="estado-mensaje estado-mensaje--error">
+    {{ errorMsg }}
+  </div>
+
+  <div class="producto-container" *ngIf="!loading && !errorMsg && producto">
+    <div class="producto-imagen-principal" (click)="abrirVisor(producto.imageUrl)">
+      <img [src]="producto.imageUrl" [alt]="producto.name" (error)="onErrorImagen()" />
+      <span class="badge" *ngIf="producto.images && producto.images.length > 1">
+        +{{ producto.images.length }} adicionales
+      </span>
+      <span class="zoom-icon">+</span>
+    </div>
+
+    <div class="producto-info">
+      <div class="producto-estado" [ngClass]="'estado--' + (producto.status | lowercase)">
+        {{ mostrarEstado(producto.status) }}
+      </div>
+
+      <h1 class="producto-nombre">{{ producto.name }}</h1>
+      <p class="producto-categoria">{{ producto.category }}</p>
+
+      <div class="producto-precio">
+        {{ producto.price | currency:'EUR':'symbol':'1.2-2' }}
+      </div>
+
+      <div class="producto-stock" [class.stock-bajo]="producto.stock < 5">
+        Stock disponible: <strong>{{ producto.stock }} unidades</strong>
+      </div>
+
+      <div class="producto-descripcion">
+        <h3>Descripcion</h3>
+        <p>{{ producto.description }}</p>
+      </div>
+
+      <div class="imagenes-adicionales" *ngIf="producto.images && producto.images.length > 0">
+        <h3>Mas imagenes</h3>
+        <div class="miniaturas-grid">
+          <div class="miniatura" *ngFor="let img of producto.images; let i = index" (click)="abrirVisor(img)">
+            <img [src]="img" [alt]="'Imagen adicional ' + (i + 1)" />
+            <span class="zoom-icon-small">+</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="producto-carrito-final" *ngIf="!authService.isAdmin">
+        <button
+          type="button"
+          class="producto-carrito-final__boton"
+          [disabled]="!canPurchase()"
+          (click)="requestAddToCart()"
+          [attr.aria-label]="canPurchase() ? 'Añadir al carrito' : 'Producto no disponible'">
+          <span aria-hidden="true">🛒</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="visor-modal" *ngIf="visorAbierto" (click)="cerrarVisor()">
+    <div class="visor-contenido" (click)="$event.stopPropagation()">
+      <button class="visor-cerrar" (click)="cerrarVisor()">×</button>
+      <button class="visor-nav visor-nav--left" (click)="anteriorImagen()">‹</button>
+      <img [src]="imagenSeleccionada" alt="Imagen ampliada" />
+      <button class="visor-nav visor-nav--right" (click)="siguienteImagen()">›</button>
+      <div class="visor-contador">
+        {{ todasLasImagenes.indexOf(imagenSeleccionada) + 1 }} / {{ todasLasImagenes.length }}
+      </div>
+    </div>
+  </div>
+
+  <div class="cart-modal" *ngIf="confirmCartOpen && producto" (click)="cancelAddToCart()">
+    <div class="cart-modal__dialog" (click)="$event.stopPropagation()">
+      <p class="cart-modal__eyebrow">Añadir al carrito</p>
+      <h2>{{ producto.name }}</h2>
+      <p class="cart-modal__text">¿Quieres añadir este producto al carrito?</p>
+
+      <div class="cart-modal__actions">
+        <button type="button" class="cart-modal__button cart-modal__button--ghost" (click)="cancelAddToCart()">
+          Cancelar
+        </button>
+        <button type="button" class="cart-modal__button" (click)="confirmAddToCart()">
+          Añadir
+        </button>
+      </div>
+    </div>
+  </div>
+</section>

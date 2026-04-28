@@ -1,0 +1,30 @@
+<header class="nav" [class.nav--hidden]="!isVisible">
+  <a class="brand" routerLink="/" aria-label="Inicio">CEOS <span>BRAND</span></a>
+
+  <nav class="links" aria-label="Navegacion">
+    <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Inicio</a>
+
+    <ng-container *ngIf="authService.currentUser; else guestLinks">
+      <ng-container *ngIf="authService.isAdmin; else customerMenu">
+        <a routerLink="/productos" routerLinkActive="active">Catalogo</a>
+        <a routerLink="/nuevo" routerLinkActive="active">Crear producto</a>
+      </ng-container>
+
+      <ng-template #customerMenu>
+        <a routerLink="/productos" routerLinkActive="active">Catalogo</a>
+        <a routerLink="/carrito" routerLinkActive="active">Carrito <span class="count">{{ cartService.totalItems }}</span></a>
+      </ng-template>
+
+      <span class="user-chip">{{ authService.currentUser!.name }}</span>
+      <button type="button" class="logout-btn" (click)="cerrarSesion()">Cerrar sesion</button>
+    </ng-container>
+
+    <ng-template #guestLinks>
+      <span class="locked locked--catalog">
+        <span class="locked__label">Catalogo</span>
+      </span>
+      <a routerLink="/register" routerLinkActive="active">Registrate</a>
+      <a routerLink="/login" routerLinkActive="active">Inicia sesion</a>
+    </ng-template>
+  </nav>
+</header>

@@ -1,43 +1,53 @@
-# CEØS BRAND – SPA Angular (Proyecto Final)
+# CEOS Brand
 
-Aplicación web Angular (NO standalone) para una marca de ropa llamada **CEØS BRAND**.
+El proyecto ahora está separado en dos carpetas principales:
 
-Cumple los requisitos técnicos del enunciado: módulos (AppModule), componentes, routing con parámetro, formulario reactivo con validaciones, servicio con inyección de dependencias, uso de HttpClient y backend simulado con **angular-in-memory-web-api**, detalle real por ID, y estados de carga/guardado + errores.
+- `frontend/`: aplicación Angular
+- `backend/`: API PHP conectada a MySQL
 
-## Temática
-Marca de ropa / catálogo de productos.
+La app ya no usa `angular-in-memory-web-api` ni `localStorage` como persistencia principal. Los productos se leen y escriben en MySQL, para que puedas verlos y administrarlos desde phpMyAdmin.
 
-## Rutas disponibles
-- `/` → Inicio
-- `/productos` → Listado principal (catálogo)
-- `/productos/:id` → Detalle de producto (ruta con parámetro)
-- `/nuevo` → Crear producto (formulario reactivo)
+## Estructura
 
-## Funcionalidades principales
-- **GET**: carga del catálogo desde el servicio (HttpClient)
-- **GET por ID**: detalle real leyendo el parámetro `:id`
-- **POST**: creación de nuevos productos desde formulario reactivo
-- Mensajes de **Cargando…** / **Guardando…** y gestión básica de errores
+- `frontend/src/app/services/product.service.ts`: cliente HTTP real contra `/api/products.php`
+- `frontend/proxy.conf.json`: proxy de Angular para desarrollo
+- `backend/api/products.php`: CRUD REST en PHP
+- `backend/config/database.php`: conexión PDO a MySQL
+- `backend/sql/ceos_brand.sql`: script para crear la base y cargar datos iniciales
 
-## Estructura (resumen)
-- `src/app/components/navbar` → componente navegación
-- `src/app/pages/home` → portada
-- `src/app/products/*` → listado, detalle, creación
-- `src/app/services/product.service.ts` → acceso a datos (HttpClient)
-- `src/app/services/in-memory-data.service.ts` → backend simulado
-- `src/app/models/product.ts` → interfaz Product
+## Base de datos con phpMyAdmin
 
-## Ejecutar el proyecto
-1. Instala dependencias:
-   ```bash
-   npm install
-   ```
-2. Arranca el servidor de desarrollo:
-   ```bash
-   npm start
-   ```
-3. Abre en el navegador:
-   - `http://localhost:4200`
+1. Abre phpMyAdmin.
+2. Importa el archivo `backend/sql/ceos_brand.sql`.
+3. Se creará la base `ceos_brand` con la tabla `products`.
+4. Ajusta las credenciales en `backend/config/database.php` si tu MySQL no usa `root` sin contraseña.
 
-> Nota: El backend está simulado con `angular-in-memory-web-api` (no necesitas servidor real).
+## Arranque en local
 
+### Backend PHP
+
+Si usas XAMPP/WAMP:
+
+1. Sirve la carpeta `backend/` desde Apache.
+2. Verifica que la API responda en una URL tipo `http://localhost/backend/api/products.php`.
+
+Si usas el servidor embebido de PHP:
+
+```bash
+cd backend
+php -S 127.0.0.1:8000
+```
+
+### Frontend Angular
+
+```bash
+cd frontend
+npm install
+npm start
+```
+
+El `start` de Angular ya usa `proxy.conf.json`, así que las llamadas a `/api/*` se redirigen al backend en `http://127.0.0.1:8000`.
+
+## Nota importante
+
+En esta sesión no pude arrancar ni validar PHP/MySQL porque este equipo no tiene instalados los comandos `php` ni `mysql`. Sí pude dejar preparada la estructura, el código del backend y el SQL de importación.
