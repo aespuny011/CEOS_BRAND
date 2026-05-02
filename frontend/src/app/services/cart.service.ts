@@ -1,97 +1,92 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
+import { BehaviorSubject, Observable, catchError, map, of, tap } from 'rxjs';
 
-import { CartItem } from '../models/cart-item.model';
+import { Cart, CartItem } from '../models/cart-item.model';
 import { Product } from '../models/product.model';
 
 @Injectable({
   providedIn: 'root',
 })
 export class CartService {
-  private readonly storageKey = 'ceos-cart';
-  private readonly itemsSubject = new BehaviorSubject<CartItem[]>(this.loadItems());
+  private readonly apiUrl = 'http://localhost:8080/api/cart';
+  private readonly emptyCart: Cart = { items: [], totalItems: 0, totalPrice: 0 };
+  private readonly cartSubject = new BehaviorSubject<Cart>(this.emptyCart);
 
-  readonly items$ = this.itemsSubject.asObservable();
+  readonly cart$ = this.cartSubject.asObservable();
+
+  constructor(private http: HttpClient) {}
+
+  get cart(): Cart {
+    return this.cartSubject.value;
+  }
 
   get items(): CartItem[] {
-    return this.itemsSubject.value;
+    return this.cart.items;
   }
 
   get totalItems(): number {
-    return this.items.reduce((total, item) => total + item.quantity, 0);
+    return this.cart.totalItems;
   }
 
   get totalPrice(): number {
-    return this.items.reduce((total, item) => total + item.price * item.quantity, 0);
+    return this.cart.totalPrice;
+  }
+
+  refresh(): Observable<boolean> {
+    return this.http.get<Cart>(this.apiUrl, { withCredentials: true }).pipe(
+      tap((cart) => this.cartSubject.next(cart)),
+      map(() => true),
+      catchError(() => {
+        this.cartSubject.next(this.emptyCart);
+        return of(false);
+      })
+    );
   }
 
   addProduct(product: Product, quantity = 1): void {
-    if (!this.canPurchase(product) || quantity <= 0) {
+    if (!product.purchasable || quantity <= 0) {
       return;
     }
 
-    const items = [...this.items];
-    const existingItem = items.find((item) => item.productId === product.id);
-
-    if (existingItem) {
-      existingItem.quantity = Math.min(existingItem.quantity + quantity, product.stock);
-      existingItem.maxStock = product.stock;
-    } else {
-      items.push({
-        productId: product.id,
-        name: product.name,
-        price: product.price,
-        imageUrl: product.imageUrl,
-        category: product.category,
-        quantity: Math.min(quantity, product.stock),
-        maxStock: product.stock,
-      });
-    }
-
-    this.updateItems(items);
+    this.http
+      .post<Cart>(
+        `${this.apiUrl}/items`,
+        { productId: product.id, quantity },
+        { withCredentials: true }
+      )
+      .subscribe((cart) => this.cartSubject.next(cart));
   }
 
   updateQuantity(productId: number, quantity: number): void {
-    const items = this.items
-      .map((item) =>
-        item.productId === productId
-          ? { ...item, quantity: Math.max(1, Math.min(quantity, item.maxStock)) }
-          : item
-      )
-      .filter((item) => item.quantity > 0);
+    if (!Number.isFinite(quantity)) {
+      return;
+    }
 
-    this.updateItems(items);
+    this.http
+      .put<Cart>(
+        `${this.apiUrl}/items/${productId}`,
+        { quantity: Math.max(1, quantity) },
+        { withCredentials: true }
+      )
+      .subscribe((cart) => this.cartSubject.next(cart));
   }
 
   removeProduct(productId: number): void {
-    this.updateItems(this.items.filter((item) => item.productId !== productId));
+    this.http
+      .delete<Cart>(`${this.apiUrl}/items/${productId}`, { withCredentials: true })
+      .subscribe((cart) => this.cartSubject.next(cart));
   }
 
   clear(): void {
-    this.updateItems([]);
+    this.http
+      .delete<Cart>(this.apiUrl, { withCredentials: true })
+      .subscribe((cart) => this.cartSubject.next(cart));
   }
 
-  private updateItems(items: CartItem[]): void {
-    this.itemsSubject.next(items);
-    localStorage.setItem(this.storageKey, JSON.stringify(items));
-  }
-
-  private loadItems(): CartItem[] {
-    const raw = localStorage.getItem(this.storageKey);
-
-    if (!raw) {
-      return [];
-    }
-
-    try {
-      const parsed = JSON.parse(raw);
-      return Array.isArray(parsed) ? parsed : [];
-    } catch {
-      return [];
-    }
-  }
-
-  private canPurchase(product: Product): boolean {
-    return product.status === 'Activo' && product.stock > 0;
+  checkout(): Observable<Cart> {
+    return this.http
+      .post<Cart>(`${this.apiUrl}/checkout`, {}, { withCredentials: true })
+      .pipe(tap((cart) => this.cartSubject.next(cart)));
   }
 }

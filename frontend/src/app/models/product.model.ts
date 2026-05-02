@@ -10,4 +10,7 @@ export interface Product {
   description: string;
   status: EstadoProducto;
   stock: number;
+  purchasable: boolean;
 }
+
+export type ProductPayload = Omit<Product, 'id' | 'purchasable'>;

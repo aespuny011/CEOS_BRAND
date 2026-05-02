@@ -5,40 +5,74 @@
   </div>
 
   <div class="filtros">
-    <div class="filtro-group">
-      <label for="categoria">Categoria</label>
-      <select [(ngModel)]="filtroCategoria" id="categoria" class="filtro-select">
-        <option *ngFor="let c of categorias" [value]="c">{{ c }}</option>
-      </select>
+    <div class="filtro-group" *ngIf="authService.isAdmin">
+      <label>Categoria</label>
+      <details class="filtro-multiple">
+        <summary>
+          <span>{{ resumenSeleccion(filtroCategorias, 'Todas') }}</span>
+        </summary>
+        <div class="filtro-multiple__panel">
+          <label class="filtro-check" *ngFor="let c of categorias">
+            <input
+              type="checkbox"
+              [checked]="estaSeleccionado(filtroCategorias, c)"
+              (change)="toggleFiltro(filtroCategorias, c)" />
+            <span class="filtro-check__box" aria-hidden="true"></span>
+            <span>{{ c }}</span>
+          </label>
+        </div>
+      </details>
+    </div>
+
+    <div class="filtro-group" *ngIf="authService.isAdmin">
+      <label>Estado</label>
+      <details class="filtro-multiple">
+        <summary>
+          <span>{{ resumenSeleccion(filtroEstados, 'Todos') }}</span>
+        </summary>
+        <div class="filtro-multiple__panel">
+          <label class="filtro-check" *ngFor="let e of estados">
+            <input
+              type="checkbox"
+              [checked]="estaSeleccionado(filtroEstados, e)"
+              (change)="toggleFiltro(filtroEstados, e)" />
+            <span class="filtro-check__box" aria-hidden="true"></span>
+            <span>{{ e }}</span>
+          </label>
+        </div>
+      </details>
     </div>
 
     <div class="filtro-group">
-      <label for="estado">Estado</label>
-      <select [(ngModel)]="filtroEstado" id="estado" class="filtro-select">
-        <option *ngFor="let e of estados" [value]="e">{{ e }}</option>
-      </select>
-    </div>
-
-    <div class="filtro-group">
-      <label for="stock">Stock</label>
-      <select [(ngModel)]="filtroStock" id="stock" class="filtro-select">
-        <option *ngFor="let opcion of opcionesStock" [value]="opcion.valor">
-          {{ opcion.texto }}
-        </option>
-      </select>
+      <label>Stock</label>
+      <details class="filtro-multiple">
+        <summary>
+          <span>{{ resumenSeleccion(filtrosStock, 'Todo el stock', opcionesStock) }}</span>
+        </summary>
+        <div class="filtro-multiple__panel">
+          <label class="filtro-check" *ngFor="let opcion of opcionesStock">
+            <input
+              type="checkbox"
+              [checked]="estaSeleccionado(filtrosStock, opcion.valor)"
+              (change)="toggleFiltro(filtrosStock, opcion.valor)" />
+            <span class="filtro-check__box" aria-hidden="true"></span>
+            <span>{{ opcion.texto }}</span>
+          </label>
+        </div>
+      </details>
     </div>
 
     <div class="filtro-group">
       <label for="precioMin">Precio minimo (EUR)</label>
-      <input type="number" [(ngModel)]="precioMin" id="precioMin" placeholder="Ej: 10" class="filtro-input" />
+      <input type="number" [(ngModel)]="precioMin" (change)="cargar()" id="precioMin" placeholder="Ej: 10" class="filtro-input" />
     </div>
 
     <div class="filtro-group">
       <label for="precioMax">Precio maximo (EUR)</label>
-      <input type="number" [(ngModel)]="precioMax" id="precioMax" placeholder="Ej: 80" class="filtro-input" />
+      <input type="number" [(ngModel)]="precioMax" (change)="cargar()" id="precioMax" placeholder="Ej: 80" class="filtro-input" />
     </div>
 
-    <button class="boton boton--secundario" (click)="limpiarFiltros()">Limpiar filtros</button>
+    <button class="boton boton--secundario filtro-input" (click)="limpiarFiltros()">Limpiar filtros</button>
   </div>
 
   <div class="resultados-info" *ngIf="!loading && !errorMsg">
@@ -48,6 +82,7 @@
   <div class="productos-grid" *ngIf="!loading && !errorMsg">
     <div class="producto-card" *ngFor="let producto of productosFiltrados">
       <div
+        *ngIf="authService.isAdmin || producto.status !== 'Activo'"
         class="producto-estado"
         [ngClass]="{
           'estado--proximamente': producto.status === 'Proximamente',

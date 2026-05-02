@@ -9,7 +9,6 @@ import { AuthUser } from '../models/auth-user.model';
 })
 export class AuthService {
   private readonly apiBaseUrl = 'http://localhost:8080/api/auth';
-  private readonly adminEmail = 'admin@gmail.com';
   private readonly userSubject = new BehaviorSubject<AuthUser | null>(null);
 
   readonly user$ = this.userSubject.asObservable();
@@ -22,7 +21,7 @@ export class AuthService {
   }
 
   get isAdmin(): boolean {
-    return this.currentUser?.email?.toLowerCase() === this.adminEmail;
+    return this.currentUser?.isAdmin === true;
   }
 
   register(payload: { name: string; email: string; password: string }): Observable<AuthUser> {

@@ -75,9 +75,7 @@ textarea:focus {
 }
 
 .nota {
-  font-size: 12px;
-  color: #777;
-  margin-top: 8px;
+  display: none;
 }
 
 .error {
@@ -97,6 +95,44 @@ textarea:focus {
   border-radius: 8px;
 }
 
+.imagenes-preview {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.imagen-preview-item {
+  position: relative;
+  width: 100px;
+  min-height: 136px;
+}
+
+.imagen-preview-item img {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 8px;
+  display: block;
+}
+
+.imagen-preview-item .badge {
+  position: absolute;
+  top: 0;
+  left: 0;
+  background: #0d0d0f;
+  color: white;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+  border-radius: 4px;
+}
+
+.imagen-preview-item .boton--peligro {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+}
+
 .acciones {
   display: flex;
   justify-content: space-between;
@@ -105,8 +141,9 @@ textarea:focus {
 }
 
 .boton {
-  padding: 12px 20px;
-  border-radius: 6px;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 8px;
   font-weight: 700;
   cursor: pointer;
 }
@@ -122,13 +159,27 @@ textarea:focus {
 }
 
 .boton--secundario {
-  background-color: transparent;
-  color: #111;
-  border: 1px solid #111;
+  background-color: #f0f0f0;
+  color: #333;
 }
 
 .boton--secundario:hover {
   background-color: #f1f1f1;
+}
+
+.boton--peligro {
+  background-color: #c00;
+  color: #fff;
+  border: 1px solid #c00;
+}
+
+.boton--peligro:hover {
+  background-color: #a00;
+}
+
+.boton--pequeno {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.875rem;
 }
 
 .boton--link {

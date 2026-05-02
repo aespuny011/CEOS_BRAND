@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 
 import { AuthGuard } from './guards/auth.guard';
+import { AdminGuard } from './guards/admin.guard';
 import { HomeComponent } from './pages/home/home.component';
 import { LoginComponent } from './pages/login/login.component';
 import { RegisterComponent } from './pages/register/register.component';
@@ -18,8 +19,8 @@ const routes: Routes = [
   { path: 'productos', component: ProductListComponent, canActivate: [AuthGuard] },
   { path: 'productos/:id', component: ProductDetailComponent, canActivate: [AuthGuard] },
   { path: 'carrito', component: CartComponent, canActivate: [AuthGuard] },
-  { path: 'nuevo', component: CrearProductoComponent, canActivate: [AuthGuard] },
-  { path: 'editar-producto/:id', component: EditarProductoComponent, canActivate: [AuthGuard] },
+  { path: 'nuevo', component: CrearProductoComponent, canActivate: [AdminGuard] },
+  { path: 'editar-producto/:id', component: EditarProductoComponent, canActivate: [AdminGuard] },
   { path: '**', redirectTo: '' },
 ];
 

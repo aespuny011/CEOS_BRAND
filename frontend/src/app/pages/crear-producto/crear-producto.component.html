@@ -1,7 +1,7 @@
 <!-- src/app/pages/crear-producto/crear-producto.component.html -->
 <section class="crear">
   <div class="crear__header">
-    <h1>Crear producto</h1>
+    <h1>Añadir producto</h1>
     <p class="crear__sub">
       Introduce los datos del producto y guarda los cambios.
     </p>
@@ -87,6 +87,7 @@
     <div class="campo">
       <label>Imagen Principal *</label>
       <input
+        #imagenPrincipalInput
         type="file"
         accept="image/*"
         (change)="seleccionarImagenPrincipal($event)"
@@ -98,7 +99,7 @@
           <button 
             type="button" 
             class="boton boton--pequeno boton--peligro"
-            (click)="quitarImagenPrincipal()"
+            (click)="quitarImagenPrincipal(imagenPrincipalInput)"
           >
             ×
           </button>
@@ -113,6 +114,7 @@
     <div class="campo">
       <label>Imágenes Adicionales</label>
       <input
+        #imagenesAdicionalesInput
         type="file"
         accept="image/*"
         multiple
@@ -132,7 +134,7 @@
             <button 
               type="button" 
               class="boton boton--pequeno boton--peligro"
-              (click)="quitarImagenAdicional(i)"
+              (click)="quitarImagenAdicional(i, imagenesAdicionalesInput)"
             >
               ×
             </button>
@@ -156,7 +158,7 @@
       <button 
         type="button" 
         class="boton boton--secundario"
-        (click)="quitarTodasLasImagenes()"
+        (click)="quitarTodasLasImagenes(imagenPrincipalInput, imagenesAdicionalesInput)"
       >
         Quitar todas las imágenes
       </button>

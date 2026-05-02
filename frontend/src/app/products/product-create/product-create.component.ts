@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ProductService } from '../../services/product.service';
-import { Product } from '../../models/product.model';
+import { Product, ProductPayload } from '../../models/product.model';
 
 @Component({
   selector: 'app-product-create',
@@ -39,7 +39,7 @@ export class ProductCreateComponent {
 
     this.saving = true;
 
-    const payload = this.form.value as Omit<Product, 'id'>;
+    const payload = this.form.value as ProductPayload;
 
     this.productService.addProduct(payload).subscribe({
       next: (created) => {

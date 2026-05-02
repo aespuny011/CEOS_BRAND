@@ -42,7 +42,7 @@ export class ProductDetailComponent implements OnInit {
 
     this.productService.getProductById(id).subscribe({
       next: (producto) => {
-        if (!producto || (!this.authService.isAdmin && producto.status === 'Oculto')) {
+        if (!producto) {
           this.errorMsg = 'Producto no encontrado';
         } else {
           this.producto = producto;
@@ -123,7 +123,7 @@ export class ProductDetailComponent implements OnInit {
   }
 
   canPurchase(): boolean {
-    return !!this.producto && this.producto.status === 'Activo' && this.producto.stock > 0;
+    return this.producto?.purchasable === true;
   }
 
   requestAddToCart(): void {

@@ -3,7 +3,7 @@ import { Component } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 
-import { Product, EstadoProducto } from '../../models/product.model';
+import { Product, EstadoProducto, ProductPayload } from '../../models/product.model';
 import { AuthService } from '../../services/auth.service';
 import { ProductService } from '../../services/product.service';
 
@@ -71,7 +71,10 @@ export class CrearProductoComponent {
     const input = evento.target as HTMLInputElement;
     const archivos = input.files;
     
-    if (!archivos || archivos.length === 0) return;
+    if (!archivos || archivos.length === 0) {
+      input.value = '';
+      return;
+    }
 
     const archivo = archivos[0];
 
@@ -98,6 +101,7 @@ export class CrearProductoComponent {
       this.formulario.patchValue({ imageUrl: dataUrlComprimido });
     } catch {
       this.errorMsg = 'No se pudo procesar la imagen principal.';
+    } finally {
       input.value = '';
     }
   }
@@ -107,7 +111,10 @@ export class CrearProductoComponent {
     const input = evento.target as HTMLInputElement;
     const archivos = input.files;
     
-    if (!archivos || archivos.length === 0) return;
+    if (!archivos || archivos.length === 0) {
+      input.value = '';
+      return;
+    }
 
     const imagenesSeleccionadas: string[] = [...(this.formulario.value.images || [])];
 
@@ -143,23 +150,34 @@ export class CrearProductoComponent {
     }
 
     this.formulario.patchValue({ images: imagenesSeleccionadas });
+    input.value = '';
   }
 
-  quitarImagenPrincipal(): void {
+  quitarImagenPrincipal(input?: HTMLInputElement): void {
     this.formulario.patchValue({ imageUrl: '' });
+    this.limpiarInputArchivo(input);
   }
 
-  quitarImagenAdicional(index: number): void {
+  quitarImagenAdicional(index: number, input?: HTMLInputElement): void {
     const imagenesActuales = [...(this.formulario.value.images || [])];
     imagenesActuales.splice(index, 1);
     this.formulario.patchValue({ images: imagenesActuales });
+    this.limpiarInputArchivo(input);
   }
 
-  quitarTodasLasImagenes(): void {
+  quitarTodasLasImagenes(inputPrincipal?: HTMLInputElement, inputAdicionales?: HTMLInputElement): void {
     this.formulario.patchValue({ 
       imageUrl: '',
       images: [] 
     });
+    this.limpiarInputArchivo(inputPrincipal);
+    this.limpiarInputArchivo(inputAdicionales);
+  }
+
+  private limpiarInputArchivo(input?: HTMLInputElement): void {
+    if (input) {
+      input.value = '';
+    }
   }
 
   enviar(): void {
@@ -176,7 +194,7 @@ export class CrearProductoComponent {
     this.guardando = true;
     console.log('Guardando producto...');
 
-    const nuevoProducto: Omit<Product, 'id'> = {
+    const nuevoProducto: ProductPayload = {
       name: this.formulario.value.name!,
       category: this.formulario.value.category!,
       price: this.formulario.value.price!,

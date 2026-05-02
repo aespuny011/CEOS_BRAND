@@ -68,6 +68,13 @@
   border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
+.home-products__grid--locked .home-products__card {
+  filter: blur(7px);
+  image-rendering: pixelated;
+  pointer-events: none;
+  user-select: none;
+}
+
 .home-products__card img {
   width: 100%;
   aspect-ratio: 1 / 1;

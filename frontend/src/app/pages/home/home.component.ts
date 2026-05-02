@@ -123,11 +123,9 @@ export class HomeComponent implements OnInit, AfterViewInit {
   }
 
   private loadFeaturedProducts(): void {
-    this.productService.getProducts().subscribe({
+    this.productService.getFeaturedProducts().subscribe({
       next: (products) => {
-        this.featuredProducts = products
-          .filter((product) => product.status !== 'Oculto')
-          .slice(0, 4);
+        this.featuredProducts = products;
       },
       error: () => {
         this.featuredProducts = [];

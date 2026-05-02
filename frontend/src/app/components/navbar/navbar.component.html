@@ -7,12 +7,14 @@
     <ng-container *ngIf="authService.currentUser; else guestLinks">
       <ng-container *ngIf="authService.isAdmin; else customerMenu">
         <a routerLink="/productos" routerLinkActive="active">Catalogo</a>
-        <a routerLink="/nuevo" routerLinkActive="active">Crear producto</a>
+        <a routerLink="/nuevo" routerLinkActive="active">Añadir producto</a>
       </ng-container>
 
       <ng-template #customerMenu>
         <a routerLink="/productos" routerLinkActive="active">Catalogo</a>
-        <a routerLink="/carrito" routerLinkActive="active">Carrito <span class="count">{{ cartService.totalItems }}</span></a>
+        <a routerLink="/carrito" routerLinkActive="active">
+          Carrito <span class="count" *ngIf="cartService.totalItems > 0">{{ cartService.totalItems }}</span>
+        </a>
       </ng-template>
 
       <span class="user-chip">{{ authService.currentUser!.name }}</span>

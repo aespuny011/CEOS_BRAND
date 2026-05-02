@@ -6,4 +6,11 @@ export interface CartItem {
   category: string;
   quantity: number;
   maxStock: number;
+  lineTotal: number;
+}
+
+export interface Cart {
+  items: CartItem[];
+  totalItems: number;
+  totalPrice: number;
 }

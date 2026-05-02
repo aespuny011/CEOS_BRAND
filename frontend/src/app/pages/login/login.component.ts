@@ -3,6 +3,7 @@ import { FormBuilder, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 
 import { AuthService } from '../../services/auth.service';
+import { CartService } from '../../services/cart.service';
 
 @Component({
   selector: 'app-login',
@@ -21,6 +22,7 @@ export class LoginComponent {
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
+    private cartService: CartService,
     private router: Router
   ) {}
 
@@ -50,7 +52,8 @@ export class LoginComponent {
       .subscribe({
         next: () => {
           this.loading = false;
-          this.router.navigate(['/productos']);
+          this.cartService.refresh().subscribe();
+          this.router.navigate(['/']);
         },
         error: (error) => {
           this.loading = false;

@@ -1,4 +1,3 @@
-// src/app/products/product-list/product-list.component.scss
 .product-list {
   max-width: 1200px;
   margin: 0 auto;
@@ -17,23 +16,21 @@
   }
 }
 
-// Filtros
 .filtros {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
   gap: 1rem;
-  flex-wrap: wrap;
   margin-bottom: 1rem;
   padding: 1rem;
   background: #f8f8f8;
   border-radius: 12px;
-  align-items: flex-end;
+  align-items: end;
 }
 
 .filtro-group {
   display: flex;
   flex-direction: column;
-  min-width: 150px;
-  flex: 1 1 auto;
+  min-width: 0;
   
   label {
     font-size: 0.875rem;
@@ -42,8 +39,9 @@
   }
 }
 
-.filtro-select, .filtro-input {
-  padding: 0.5rem;
+.filtro-input {
+  min-height: 48px;
+  padding: 0.6rem 1rem;
   border: 1px solid #ddd;
   border-radius: 8px;
   font-size: 1rem;
@@ -55,7 +53,128 @@
   }
 }
 
-// Resultados info
+.filtro-multiple {
+  position: relative;
+  
+  summary {
+    min-height: 48px;
+    display: flex;
+    align-items: center;
+    padding: 0.6rem 2.6rem 0.6rem 1rem;
+    border: 1px solid #d9d9df;
+    border-radius: 8px;
+    background: linear-gradient(180deg, #fff 0%, #f7f7f8 100%);
+    color: #111114;
+    cursor: pointer;
+    list-style: none;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  summary span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  summary::-webkit-details-marker {
+    display: none;
+  }
+
+  summary::after {
+    content: "⌄";
+    position: absolute;
+    top: 50%;
+    right: 1rem;
+    width: 9px;
+    height: 9px;
+    border-right: 2px solid #555;
+    border-bottom: 2px solid #555;
+    color: transparent;
+    transform: translateY(-65%) rotate(45deg);
+  }
+
+  summary:hover {
+    border-color: #bfbfc7;
+  }
+
+  &[open] summary {
+    border-color: #0d0d0f;
+    box-shadow: 0 0 0 3px rgba(13, 13, 15, 0.08);
+  }
+
+  &[open] summary::after {
+    color: transparent;
+    transform: translateY(-35%) rotate(225deg);
+  }
+
+  &[open] {
+    z-index: 5;
+  }
+}
+
+.filtro-multiple__panel {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(100% + 8px);
+  display: grid;
+  gap: 0.35rem;
+  padding: 0.45rem;
+  border: 1px solid #e3e3e7;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.98);
+}
+
+.filtro-check {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  min-height: 40px;
+  padding: 0.55rem 0.65rem;
+  border-radius: 6px;
+  color: #303036;
+  cursor: pointer;
+
+  &:hover {
+    background: #f4f1ed;
+  }
+
+  input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  input:checked + .filtro-check__box {
+    background: #0d0d0f;
+    border-color: #0d0d0f;
+  }
+
+  input:checked + .filtro-check__box::after {
+    opacity: 1;
+  }
+}
+
+.filtro-check__box {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 18px;
+  display: grid;
+  place-items: center;
+  border: 1.5px solid #a9a9b0;
+  border-radius: 4px;
+  background: #fff;
+}
+
+.filtro-check__box::after {
+  content: "✓";
+  color: #fff;
+  font-size: 12px;
+  font-weight: 800;
+  opacity: 0;
+}
+
 .resultados-info {
   margin-bottom: 1rem;
   padding: 0.5rem;
@@ -64,21 +183,18 @@
   text-align: right;
 }
 
-// Grid de productos
 .productos-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 2rem;
 }
 
-// Tarjeta de producto
 .producto-card {
   position: relative;
   background: white;
   border-radius: 12px;
   overflow: hidden;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
   
   &:hover {
     transform: translateY(-4px);
@@ -86,7 +202,6 @@
   }
 }
 
-// Área clickeable del producto
 .producto-clickeable {
   cursor: pointer;
   
@@ -97,7 +212,6 @@
   }
 }
 
-// Estado del producto
 .producto-estado {
   position: absolute;
   top: 12px;
@@ -142,7 +256,6 @@
     width: 100%;
     height: 100%;
     object-fit: cover;
-    transition: transform 0.3s ease;
   }
 }
 
@@ -172,34 +285,33 @@
   color: #0d0d0f;
 }
 
-// Estilos para el stock con colores según cantidad
 .producto-stock {
   margin: 0;
   font-size: 0.875rem;
   font-weight: 600;
   
   &.stock-cero {
-    color: #f44336; // Rojo para stock 0
+    color: #f44336;
     font-weight: 700;
   }
   
   &.stock-bajo {
-    color: #ff9800; // Naranja para stock entre 1 y 10
+    color: #ff9800;
     font-weight: 600;
   }
   
   &.stock-normal {
-    color: #0d0d0f; // Negro para stock > 10
+    color: #0d0d0f;
     font-weight: 500;
   }
   
   &.stock-proximamente {
-    color: #ff9800; // Naranja para próximamente (mismo color que el estado)
+    color: #ff9800;
     font-weight: 600;
   }
   
   &.stock-oculto {
-    color: #9e9e9e; // Gris para oculto (mismo color que el estado)
+    color: #9e9e9e;
     font-weight: 500;
   }
 }
@@ -211,7 +323,6 @@
   border-top: 1px solid #eee;
 }
 
-// Botones
 .boton {
   padding: 0.5rem 1rem;
   border: none;
@@ -219,7 +330,6 @@
   font-size: 0.875rem;
   cursor: pointer;
   text-decoration: none;
-  transition: all 0.2s ease;
   
   &--principal {
     background: #0d0d0f;
@@ -273,7 +383,6 @@
   cursor: not-allowed;
 }
 
-// Mensajes de estado
 .estado-mensaje {
   text-align: center;
   padding: 3rem;
@@ -348,7 +457,6 @@
   border: 1px solid rgba(255, 255, 255, 0.12);
 }
 
-// Responsive
 @media (max-width: 768px) {
   .product-list {
     padding: 1rem;

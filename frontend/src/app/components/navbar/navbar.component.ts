@@ -23,7 +23,11 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.lastScrollY = window.scrollY;
-    this.authService.restoreSession().subscribe();
+    this.authService.restoreSession().subscribe((isLoggedIn) => {
+      if (isLoggedIn) {
+        this.cartService.refresh().subscribe();
+      }
+    });
   }
 
   ngOnDestroy(): void {
@@ -61,7 +65,10 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
   cerrarSesion(): void {
     this.authService.logout().subscribe({
-      next: () => this.router.navigate(['/login']),
+      next: () => {
+        this.cartService.refresh().subscribe();
+        this.router.navigate(['/login']);
+      },
     });
   }
 }

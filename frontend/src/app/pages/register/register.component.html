@@ -19,8 +19,8 @@
 
       <label>
         <span>Contrasena</span>
-        <input type="password" formControlName="password" placeholder="Minimo 6 caracteres" />
-        <small class="field-error" *ngIf="getFieldError('password')">{{ getFieldError('password') }}</small>
+        <input type="password" formControlName="password" placeholder="Minimo 8 caracteres, mayuscula, numero y simbolo" />
+        <small class="field-error" *ngFor="let error of getPasswordErrors()">{{ error }}</small>
       </label>
 
       <p class="error" *ngIf="errorMsg">{{ errorMsg }}</p>

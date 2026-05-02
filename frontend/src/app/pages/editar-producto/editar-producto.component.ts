@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 
-import { Product, EstadoProducto } from '../../models/product.model';
+import { Product, EstadoProducto, ProductPayload } from '../../models/product.model';
 import { AuthService } from '../../services/auth.service';
 import { ProductService } from '../../services/product.service';
 
@@ -15,6 +15,7 @@ export class EditarProductoComponent implements OnInit {
   loading = true;
   guardando = false;
   errorMsg: string | null = null;
+  saveErrorMsg: string | null = null;
 
   mostrarMensajeExito = false;
 
@@ -25,6 +26,7 @@ export class EditarProductoComponent implements OnInit {
 
   // imágenes (múltiples). La primera será la principal (imageUrl).
   imagenesSeleccionadas: string[] = [];
+  private imagenesAdicionalesActuales: string[] = [];
 
   private readonly TAMANO_MAXIMO_ORIGINAL = 12 * 1024 * 1024;
   private readonly MAX_LADO = 1200;
@@ -40,7 +42,7 @@ export class EditarProductoComponent implements OnInit {
     stock: [0 as number | null, [Validators.required, Validators.min(0)]],
 
     // mantenemos imageUrl para no romper pantallas que lo usen
-    imageUrl: [''],
+    imageUrl: ['', [Validators.required]],
   });
 
   constructor(
@@ -73,9 +75,19 @@ export class EditarProductoComponent implements OnInit {
     return this.imagenesSeleccionadas[0] || this.formulario.value.imageUrl || '';
   }
 
+  get imagenesAdicionales(): string[] {
+    return this.imagenesAdicionalesActuales;
+  }
+
+  get todasLasImagenes(): string[] {
+    const principal = this.imagenActual;
+    return principal ? [principal, ...this.imagenesAdicionales] : this.imagenesAdicionales;
+  }
+
   private cargarProducto(id: number): void {
     this.loading = true;
     this.errorMsg = null;
+    this.saveErrorMsg = null;
 
     this.productos.getProductById(id).subscribe({
       next: (producto: Product | undefined) => {
@@ -85,12 +97,11 @@ export class EditarProductoComponent implements OnInit {
           return;
         }
 
-        // Si el producto ya tiene images, las usamos; si no, creamos desde imageUrl
-        const imgs = (producto as any).images as string[] | undefined;
-        this.imagenesSeleccionadas =
-          Array.isArray(imgs) && imgs.length
-            ? imgs
-            : (producto.imageUrl ? [producto.imageUrl] : []);
+        const imgs = Array.isArray(producto.images) ? producto.images.filter(Boolean) : [];
+        const imagenPrincipal = producto.imageUrl || imgs[0] || '';
+
+        this.imagenesSeleccionadas = imagenPrincipal ? [imagenPrincipal] : [];
+        this.imagenesAdicionalesActuales = imgs.filter((img) => img !== imagenPrincipal);
 
         this.formulario.patchValue({
           name: producto.name,
@@ -99,7 +110,7 @@ export class EditarProductoComponent implements OnInit {
           description: producto.description,
           status: producto.status,
           stock: producto.stock,
-          imageUrl: producto.imageUrl || (this.imagenesSeleccionadas[0] ?? ''),
+          imageUrl: imagenPrincipal,
         });
 
         this.loading = false;
@@ -113,12 +124,13 @@ export class EditarProductoComponent implements OnInit {
 
   // ✅ Compatibilidad con tu HTML viejo: (change)="seleccionarImagen($event)"
   async seleccionarImagen(evento: Event): Promise<void> {
-    await this.seleccionarImagenes(evento);
+    await this.seleccionarImagenPrincipal(evento);
   }
 
   // Si tu input tiene multiple, esto cargará varias. Si no, cargará 1.
-  async seleccionarImagenes(evento: Event): Promise<void> {
+  async seleccionarImagenPrincipal(evento: Event): Promise<void> {
     this.errorMsg = null;
+    this.saveErrorMsg = null;
 
     const input = evento.target as HTMLInputElement;
     const archivos = Array.from(input.files ?? []);
@@ -141,17 +153,10 @@ export class EditarProductoComponent implements OnInit {
     try {
       this.loading = true;
 
-      const dataUrls: string[] = [];
-      for (const archivo of archivos) {
-        const dataUrl = await this.comprimirImagen(archivo, this.MAX_LADO, this.CALIDAD_JPEG);
-        dataUrls.push(dataUrl);
-      }
+      const principal = await this.comprimirImagen(archivos[0], this.MAX_LADO, this.CALIDAD_JPEG);
 
       // Reemplazamos por las nuevas imágenes
-      this.imagenesSeleccionadas = dataUrls;
-
-      // principal
-      const principal = this.imagenesSeleccionadas[0] ?? '';
+      this.imagenesSeleccionadas = [principal];
       this.formulario.patchValue({ imageUrl: principal });
       this.formulario.get('imageUrl')?.markAsTouched();
     } catch {
@@ -163,15 +168,78 @@ export class EditarProductoComponent implements OnInit {
   }
 
   // ✅ Compatibilidad con tu HTML viejo
+  async seleccionarImagenesAdicionales(evento: Event): Promise<void> {
+    this.errorMsg = null;
+    this.saveErrorMsg = null;
+
+    const input = evento.target as HTMLInputElement;
+    const archivos = Array.from(input.files ?? []);
+    if (!archivos.length) return;
+
+    for (const archivo of archivos) {
+      if (!archivo.type.startsWith('image/')) {
+        this.errorMsg = 'Uno de los archivos no es una imagen.';
+        input.value = '';
+        return;
+      }
+      if (archivo.size > this.TAMANO_MAXIMO_ORIGINAL) {
+        this.errorMsg = 'Una de las imÃ¡genes es demasiado grande (mÃ¡x. 12MB).';
+        input.value = '';
+        return;
+      }
+    }
+
+    try {
+      this.loading = true;
+
+      const nuevasImagenes: string[] = [];
+      for (const archivo of archivos) {
+        nuevasImagenes.push(await this.comprimirImagen(archivo, this.MAX_LADO, this.CALIDAD_JPEG));
+      }
+
+      const principal = this.imagenActual;
+      this.imagenesAdicionalesActuales = [
+        ...this.imagenesAdicionalesActuales,
+        ...nuevasImagenes,
+      ].filter((img) => img && img !== principal);
+    } catch {
+      this.errorMsg = 'No se pudieron procesar las imÃ¡genes secundarias.';
+    } finally {
+      this.loading = false;
+      input.value = '';
+    }
+  }
+
   quitarImagen(): void {
     this.imagenesSeleccionadas = [];
     this.formulario.patchValue({ imageUrl: '' });
     this.formulario.get('imageUrl')?.markAsTouched();
   }
 
+  quitarImagenAdicional(index: number, input?: HTMLInputElement): void {
+    this.imagenesAdicionalesActuales = this.imagenesAdicionalesActuales.filter((_, i) => i !== index);
+    if (input) {
+      input.value = '';
+    }
+  }
+
+  quitarTodasLasImagenes(inputPrincipal?: HTMLInputElement, inputAdicionales?: HTMLInputElement): void {
+    this.imagenesSeleccionadas = [];
+    this.imagenesAdicionalesActuales = [];
+    this.formulario.patchValue({ imageUrl: '' });
+    this.formulario.get('imageUrl')?.markAsTouched();
+
+    if (inputPrincipal) {
+      inputPrincipal.value = '';
+    }
+    if (inputAdicionales) {
+      inputAdicionales.value = '';
+    }
+  }
+
   // ✅ Tu HTML usa (ngSubmit)="guardar()"
   guardar(): void {
-    this.errorMsg = null;
+    this.saveErrorMsg = null;
 
     if (this.formulario.invalid || this.idProducto == null) {
       this.formulario.markAllAsTouched();
@@ -181,11 +249,9 @@ export class EditarProductoComponent implements OnInit {
     this.guardando = true;
 
     const principal = this.imagenesSeleccionadas[0] || this.formulario.value.imageUrl || '';
-    const imagesFinal = this.imagenesSeleccionadas.length
-      ? this.imagenesSeleccionadas
-      : (principal ? [principal] : []);
+    const imagesFinal = this.imagenesAdicionalesActuales.filter((img) => img && img !== principal);
 
-    const cambios: Omit<Product, 'id'> = {
+    const cambios: ProductPayload = {
       name: this.formulario.value.name!,
       category: this.formulario.value.category as Product['category'],
       price: Number(this.formulario.value.price),
@@ -210,9 +276,9 @@ export class EditarProductoComponent implements OnInit {
         // this.router.navigate(['/productos', this.idProducto]);
         this.router.navigate(['/productos']);
       },
-      error: () => {
+      error: (error) => {
         this.guardando = false;
-        this.errorMsg = 'No se pudieron guardar los cambios.';
+        this.saveErrorMsg = error?.error?.message || 'No se pudieron guardar los cambios.';
       },
     });
   }
@@ -220,6 +286,10 @@ export class EditarProductoComponent implements OnInit {
   tocado(nombre: string): boolean {
     const c = this.formulario.get(nombre);
     return !!c && c.touched && c.invalid;
+  }
+
+  evitarCambioConRueda(evento: WheelEvent): void {
+    (evento.target as HTMLInputElement).blur();
   }
 
   private async comprimirImagen(archivo: File, maxLado: number, calidad: number): Promise<string> {

@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { FormBuilder, Validators } from '@angular/forms';
+import { AbstractControl, FormBuilder, ValidationErrors, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 
 import { AuthService } from '../../services/auth.service';
@@ -16,7 +16,7 @@ export class RegisterComponent {
   formulario = this.fb.group({
     name: ['', [Validators.required, Validators.minLength(2)]],
     email: ['', [Validators.required, Validators.email]],
-    password: ['', [Validators.required, Validators.minLength(6)]],
+    password: ['', [Validators.required, this.passwordStrengthValidator]],
   });
 
   constructor(
@@ -80,7 +80,7 @@ export class RegisterComponent {
 
     if (control.errors['minlength']) {
       if (field === 'name') return 'El nombre debe tener al menos 2 caracteres.';
-      return 'La contraseña debe tener al menos 6 caracteres.';
+      return null;
     }
 
     if (control.errors['email']) {
@@ -88,5 +88,49 @@ export class RegisterComponent {
     }
 
     return null;
+  }
+
+  getPasswordErrors(): string[] {
+    const control = this.passwordControl;
+
+    if (!control || !control.touched || !control.errors) {
+      return [];
+    }
+
+    const errors = control.errors;
+    const messages: string[] = [];
+
+    if (errors['required']) {
+      messages.push('La contrasena es obligatoria.');
+      return messages;
+    }
+
+    if (errors['passwordMinLength']) messages.push('Debe tener al menos 8 caracteres.');
+    if (errors['passwordUppercase']) messages.push('Debe incluir al menos una letra mayuscula.');
+    if (errors['passwordLowercase']) messages.push('Debe incluir al menos una letra minuscula.');
+    if (errors['passwordNumber']) messages.push('Debe incluir al menos un numero.');
+    if (errors['passwordSpecial']) messages.push('Debe incluir al menos un simbolo.');
+    if (errors['passwordSpaces']) messages.push('No puede contener espacios.');
+
+    return messages;
+  }
+
+  private passwordStrengthValidator(control: AbstractControl): ValidationErrors | null {
+    const value = String(control.value ?? '');
+
+    if (!value) {
+      return null;
+    }
+
+    const errors: ValidationErrors = {};
+
+    if (value.length < 8) errors['passwordMinLength'] = true;
+    if (!/[A-Z]/.test(value)) errors['passwordUppercase'] = true;
+    if (!/[a-z]/.test(value)) errors['passwordLowercase'] = true;
+    if (!/\d/.test(value)) errors['passwordNumber'] = true;
+    if (!/[^A-Za-z0-9\s]/.test(value)) errors['passwordSpecial'] = true;
+    if (/\s/.test(value)) errors['passwordSpaces'] = true;
+
+    return Object.keys(errors).length ? errors : null;
   }
 }

@@ -14,6 +14,9 @@
   <p *ngIf="!loading && errorMsg" class="estado estado--error">
     {{ errorMsg }}
   </p>
+  <p *ngIf="!loading && saveErrorMsg" class="estado estado--error">
+    {{ saveErrorMsg }}
+  </p>
 
   <!-- Formulario de edición -->
   <form
@@ -42,7 +45,14 @@
     <!-- Precio -->
     <div class="campo">
       <label for="price">Precio (€)</label>
-      <input id="price" type="number" step="0.01" formControlName="price" placeholder="Ej: 59.99" />
+      <input
+        id="price"
+        type="number"
+        step="0.01"
+        formControlName="price"
+        placeholder="Ej: 59.99"
+        (wheel)="evitarCambioConRueda($event)"
+      />
       <small class="error" *ngIf="tocado('price')">Precio obligatorio y mayor que 0.</small>
     </div>
 
@@ -58,36 +68,98 @@
     <!-- Stock -->
     <div class="campo">
       <label for="stock">Stock</label>
-      <input id="stock" type="number" step="1" min="0" formControlName="stock" placeholder="Ej: 10" />
+      <input
+        id="stock"
+        type="number"
+        step="1"
+        min="0"
+        formControlName="stock"
+        placeholder="Ej: 10"
+        (wheel)="evitarCambioConRueda($event)"
+      />
       <small class="error" *ngIf="tocado('stock')">Stock obligatorio (mínimo 0).</small>
     </div>
 
     <!-- Imagen -->
     <div class="campo">
-      <label>Imagen</label>
+      <label>Imagen Principal *</label>
 
       <div class="imagen">
-        <input type="file" accept="image/png,image/jpeg,image/webp" (change)="seleccionarImagen($event)" />
-        <button
-          type="button"
-          class="boton boton--secundario"
-          (click)="quitarImagen()"
-          [disabled]="!imagenActual"
-        >
-          Quitar imagen
-        </button>
+        <input
+          #imagenPrincipalInput
+          type="file"
+          accept="image/png,image/jpeg,image/webp"
+          (change)="seleccionarImagenPrincipal($event)"
+        />
       </div>
 
       <p class="nota">Formatos: jpg/png/webp. Tamaño original máximo: 12MB.</p>
 
-      <small class="error" *ngIf="tocado('imageUrl')">Imagen obligatoria.</small>
+      <small class="error" *ngIf="tocado('imageUrl')">Imagen principal obligatoria.</small>
 
-      <div class="preview" *ngIf="imagenActual">
+      <div class="imagen-preview-container" *ngIf="imagenActual">
+        <h4>Imagen principal:</h4>
+        <div class="imagen-preview-item">
         <img [src]="imagenActual" alt="Vista previa" />
+          <button
+            type="button"
+            class="boton boton--pequeno boton--peligro"
+            (click)="quitarImagen(); imagenPrincipalInput.value = ''"
+          >
+            x
+          </button>
+        </div>
       </div>
     </div>
 
+    <!-- Imagenes secundarias -->
+    <div class="campo">
+      <label>Imagenes Adicionales</label>
+
+      <input
+        #imagenesAdicionalesInput
+        type="file"
+        accept="image/png,image/jpeg,image/webp"
+        multiple
+        (change)="seleccionarImagenesAdicionales($event)"
+      />
+
+      <div class="imagenes-preview-container" *ngIf="imagenesAdicionales.length">
+        <h4>Imagenes adicionales ({{ imagenesAdicionales.length }}):</h4>
+        <div class="imagenes-preview">
+        <div class="imagen-preview-item" *ngFor="let img of imagenesAdicionales; let i = index">
+          <img [src]="img" alt="Imagen secundaria {{ i + 1 }}" />
+          <button
+            type="button"
+            class="boton boton--pequeno boton--peligro"
+            (click)="quitarImagenAdicional(i, imagenesAdicionalesInput)"
+          >
+            x
+          </button>
+        </div>
+        </div>
+      </div>
+
+    </div>
+
     <!-- Descripción -->
+    <div *ngIf="todasLasImagenes.length" class="campo vista-previa-completa">
+      <h3>Todas las imagenes ({{ todasLasImagenes.length }}):</h3>
+      <div class="imagenes-preview">
+        <div class="imagen-preview-item" *ngFor="let img of todasLasImagenes; let i = index">
+          <img [src]="img" alt="Producto imagen {{ i + 1 }}" />
+          <span class="badge" *ngIf="i === 0">Principal</span>
+        </div>
+      </div>
+      <button
+        type="button"
+        class="boton boton--secundario"
+        (click)="quitarTodasLasImagenes(imagenPrincipalInput, imagenesAdicionalesInput)"
+      >
+        Quitar todas las imagenes
+      </button>
+    </div>
+
     <div class="campo">
       <label for="description">Descripción</label>
       <textarea
@@ -105,7 +177,7 @@
         {{ guardando ? 'Guardando…' : 'Guardar cambios' }}
       </button>
 
-      <a class="boton boton--link" routerLink="/catalogo">Cancelar</a>
+      <a class="boton boton--link" routerLink="/productos">Cancelar</a>
     </div>
   </form>
 </section>

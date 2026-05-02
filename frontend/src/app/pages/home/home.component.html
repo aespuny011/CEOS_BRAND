@@ -35,17 +35,17 @@
     <div class="overlay">
       <h1>CEOS BRAND</h1>
       <p *ngIf="authService.currentUser; else guestMessage">
-        {{ authService.isAdmin ? 'Administra el catalogo, crea productos y controla la tienda.' : 'Explora el catalogo y compra tus prendas favoritas.' }}
+        {{ authService.isAdmin ? 'Administra el catálogo, crea productos y controla la tienda.' : 'Explora el catalogo y compra tus prendas favoritas.' }}
       </p>
 
       <ng-template #guestMessage>
-        <p>Registrate o inicia sesion para desbloquear el catalogo y empezar a comprar.</p>
+        <p>Inicia sesión o Regístrate para desbloquear el catálogo y empezar a comprar.</p>
       </ng-template>
 
       <div class="cta-group" *ngIf="authService.currentUser; else guestActions">
         <ng-container *ngIf="authService.isAdmin; else customerActions">
           <a routerLink="/productos" class="boton">Ver catalogo</a>
-          <a routerLink="/nuevo" class="boton boton--ghost">Crear producto</a>
+          <a routerLink="/nuevo" class="boton boton--ghost">Añadir producto</a>
         </ng-container>
 
         <ng-template #customerActions>
@@ -69,7 +69,6 @@
 <section class="home-products" *ngIf="featuredProducts.length">
   <div class="home-products__header">
     <div>
-      <p class="home-products__eyebrow">Catalogo visible</p>
       <h2>Productos que ya estan en la web</h2>
     </div>
     <a routerLink="/productos" class="home-products__link" *ngIf="authService.currentUser; else loginToView">
@@ -80,7 +79,7 @@
     </ng-template>
   </div>
 
-  <div class="home-products__grid">
+  <div class="home-products__grid" [class.home-products__grid--locked]="!authService.currentUser">
     <article class="home-products__card" *ngFor="let product of featuredProducts">
       <img [src]="product.imageUrl" [alt]="product.name" />
       <div class="home-products__info">
