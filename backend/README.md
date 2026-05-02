@@ -1,34 +1,29 @@
-# Backend PHP + MySQL
+# Backend Java de autenticacion
 
-## Archivos principales
+Este modulo mueve la logica de registro e inicio de sesion al backend Java usando Spring Boot, JDBC y sesiones HTTP.
 
-- `api/products.php`: endpoints CRUD para productos
-- `config/database.php`: conexión PDO
-- `sql/ceos_brand.sql`: creación de base, tabla y datos iniciales
+## Endpoints
 
-## Configuración
+- `POST /api/auth/register`
+- `POST /api/auth/login`
+- `GET /api/auth/me`
+- `POST /api/auth/logout`
 
-Edita `config/database.php` y revisa estos valores:
+## Configuracion
 
-- host
-- port
-- dbName
-- username
-- password
+Por defecto usa MySQL:
 
-## Probar la API
+- `CEOS_DB_URL=jdbc:mysql://127.0.0.1:3306/ceos_brand?useSSL=false&serverTimezone=UTC`
+- `CEOS_DB_USERNAME=root`
+- `CEOS_DB_PASSWORD=`
 
-Con servidor embebido:
+La base debe existir antes de arrancar el backend:
+
+## Arranque
 
 ```bash
 cd backend
-php -S 127.0.0.1:8000
+mvn spring-boot:run
 ```
 
-Endpoints:
-
-- `GET /api/products.php`
-- `GET /api/products.php?id=1`
-- `POST /api/products.php`
-- `PUT /api/products.php?id=1`
-- `DELETE /api/products.php?id=1`
+El frontend Angular queda preparado para consumir esta API en `http://localhost:8080` mediante el proxy.
