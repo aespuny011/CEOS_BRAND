@@ -126,6 +126,18 @@ h1 {
   color: #c8b28d;
 }
 
+.cart-item__size {
+  display: inline-flex;
+  width: fit-content;
+  margin: 8px 0 0;
+  padding: 4px 9px;
+  border-radius: 999px;
+  background: #f3ede6;
+  color: #111;
+  font-size: 12px;
+  font-weight: 900;
+}
+
 .cart-item__info h2,
 .cart-item__price {
   margin: 0;

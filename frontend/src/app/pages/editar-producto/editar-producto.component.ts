@@ -21,6 +21,7 @@ export class EditarProductoComponent implements OnInit {
 
   categorias: Product['category'][] = ['Camiseta', 'Sudadera', 'Pantalón', 'Accesorio', 'Chaqueta'];
   estados: EstadoProducto[] = ['Activo', 'Oculto', 'Agotado', 'Proximamente'];
+  sizeStock: Record<string, number> = {};
 
   private idProducto: number | null = null;
 
@@ -112,6 +113,7 @@ export class EditarProductoComponent implements OnInit {
           stock: producto.stock,
           imageUrl: imagenPrincipal,
         });
+        this.sizeStock = { ...(producto.sizeStock || {}) };
 
         this.loading = false;
       },
@@ -183,7 +185,7 @@ export class EditarProductoComponent implements OnInit {
         return;
       }
       if (archivo.size > this.TAMANO_MAXIMO_ORIGINAL) {
-        this.errorMsg = 'Una de las imÃ¡genes es demasiado grande (mÃ¡x. 12MB).';
+        this.errorMsg = 'Una de las imágenes es demasiado grande (máx. 12MB).';
         input.value = '';
         return;
       }
@@ -203,7 +205,7 @@ export class EditarProductoComponent implements OnInit {
         ...nuevasImagenes,
       ].filter((img) => img && img !== principal);
     } catch {
-      this.errorMsg = 'No se pudieron procesar las imÃ¡genes secundarias.';
+      this.errorMsg = 'No se pudieron procesar las imágenes secundarias.';
     } finally {
       this.loading = false;
       input.value = '';
@@ -259,6 +261,7 @@ export class EditarProductoComponent implements OnInit {
 
       status: this.formulario.value.status as EstadoProducto,
       stock: Number(this.formulario.value.stock),
+      sizeStock: this.stockPorTallaParaGuardar(),
 
       imageUrl: principal,
       images: imagesFinal,
@@ -290,6 +293,43 @@ export class EditarProductoComponent implements OnInit {
 
   evitarCambioConRueda(evento: WheelEvent): void {
     (evento.target as HTMLInputElement).blur();
+  }
+
+  get tallasActuales(): string[] {
+    return this.tallasPorCategoria(this.formulario.value.category || '');
+  }
+
+  stockTalla(talla: string): number {
+    return this.sizeStock[talla] ?? 0;
+  }
+
+  cambiarStockTalla(talla: string, event: Event): void {
+    const input = event.target as HTMLInputElement | null;
+    this.sizeStock[talla] = Math.max(0, Number(input?.value ?? 0));
+    this.formulario.patchValue({ stock: this.totalStockTallas() });
+  }
+
+  private stockPorTallaParaGuardar(): Record<string, number> {
+    return this.tallasActuales.reduce((stock, talla) => {
+      stock[talla] = this.stockTalla(talla);
+      return stock;
+    }, {} as Record<string, number>);
+  }
+
+  private totalStockTallas(): number {
+    return this.tallasActuales.reduce((total, talla) => total + this.stockTalla(talla), 0);
+  }
+
+  private tallasPorCategoria(categoria: string): string[] {
+    if (categoria === 'Camiseta' || categoria === 'Sudadera') {
+      return ['S', 'M', 'L', 'XL'];
+    }
+
+    if (categoria === 'Pantalón' || categoria === 'Pantalon') {
+      return ['34', '36', '38', '40', '42', '44'];
+    }
+
+    return [];
   }
 
   private async comprimirImagen(archivo: File, maxLado: number, calidad: number): Promise<string> {

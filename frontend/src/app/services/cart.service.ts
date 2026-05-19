@@ -44,7 +44,7 @@ export class CartService {
     );
   }
 
-  addProduct(product: Product, quantity = 1): void {
+  addProduct(product: Product, quantity = 1, size = ''): void {
     if (!product.purchasable || quantity <= 0) {
       return;
     }
@@ -52,13 +52,13 @@ export class CartService {
     this.http
       .post<Cart>(
         `${this.apiUrl}/items`,
-        { productId: product.id, quantity },
+        { productId: product.id, quantity, size },
         { withCredentials: true }
       )
       .subscribe((cart) => this.cartSubject.next(cart));
   }
 
-  updateQuantity(productId: number, quantity: number): void {
+  updateQuantity(productId: number, quantity: number, size = ''): void {
     if (!Number.isFinite(quantity)) {
       return;
     }
@@ -66,15 +66,18 @@ export class CartService {
     this.http
       .put<Cart>(
         `${this.apiUrl}/items/${productId}`,
-        { quantity: Math.max(1, quantity) },
+        { quantity: Math.max(1, quantity), size },
         { withCredentials: true }
       )
       .subscribe((cart) => this.cartSubject.next(cart));
   }
 
-  removeProduct(productId: number): void {
+  removeProduct(productId: number, size = ''): void {
     this.http
-      .delete<Cart>(`${this.apiUrl}/items/${productId}`, { withCredentials: true })
+      .delete<Cart>(`${this.apiUrl}/items/${productId}`, {
+        params: size ? { size } : {},
+        withCredentials: true,
+      })
       .subscribe((cart) => this.cartSubject.next(cart));
   }
 

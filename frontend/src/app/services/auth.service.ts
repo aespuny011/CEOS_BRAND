@@ -49,6 +49,16 @@ export class AuthService {
       );
   }
 
+  updateProfile(payload: { name: string; email: string }): Observable<AuthUser> {
+    return this.http
+      .put<AuthUser>(`${this.apiBaseUrl}/me`, payload, { withCredentials: true })
+      .pipe(tap((user) => this.userSubject.next(user)));
+  }
+
+  updatePassword(payload: { currentPassword: string; newPassword: string }): Observable<{ message: string }> {
+    return this.http.put<{ message: string }>(`${this.apiBaseUrl}/me/password`, payload, { withCredentials: true });
+  }
+
   restoreSession(): Observable<boolean> {
     return this.http
       .get<AuthUser>(`${this.apiBaseUrl}/me`, { withCredentials: true })

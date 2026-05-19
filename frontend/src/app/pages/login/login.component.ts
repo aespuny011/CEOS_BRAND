@@ -13,6 +13,7 @@ import { CartService } from '../../services/cart.service';
 export class LoginComponent {
   errorMsg: string | null = null;
   loading = false;
+  showPassword = false;
 
   formulario = this.fb.group({
     email: ['', [Validators.required, Validators.email]],
@@ -32,6 +33,10 @@ export class LoginComponent {
 
   get passwordControl() {
     return this.formulario.get('password');
+  }
+
+  togglePasswordVisibility(): void {
+    this.showPassword = !this.showPassword;
   }
 
   enviar(): void {
@@ -57,7 +62,7 @@ export class LoginComponent {
         },
         error: (error) => {
           this.loading = false;
-          this.errorMsg = error?.error?.message ?? 'No se pudo iniciar sesion.';
+          this.errorMsg = error?.error?.message ?? 'No se pudo iniciar sesión.';
         },
       });
   }

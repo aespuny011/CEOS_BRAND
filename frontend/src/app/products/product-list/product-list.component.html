@@ -1,12 +1,52 @@
 <section class="product-list">
   <div class="product-list__header">
-    <h1>Catalogo de productos</h1>
+    <h1>Catálogo de productos</h1>
     <a *ngIf="authService.isAdmin" routerLink="/nuevo" class="boton boton--principal">+ Añadir producto</a>
   </div>
 
+  <section class="catalog-tools" *ngIf="!loading && !errorMsg">
+    <div class="catalog-tools__search">
+      <label for="busquedaCatalogo">Buscar producto</label>
+      <input
+        id="busquedaCatalogo"
+        type="search"
+        [(ngModel)]="busqueda"
+        placeholder="Nombre, categoría o descripción" />
+    </div>
+
+    <div class="catalog-tools__sort">
+      <label for="ordenCatalogo">Ordenar</label>
+      <select id="ordenCatalogo" [(ngModel)]="ordenCatalogo">
+        <option value="recientes">Más recientes</option>
+        <option value="precio-asc">Precio: menor a mayor</option>
+        <option value="precio-desc">Precio: mayor a menor</option>
+        <option value="nombre">Nombre A-Z</option>
+      </select>
+    </div>
+  </section>
+
+  <section class="catalog-summary" *ngIf="authService.isAdmin && !loading && !errorMsg">
+    <article>
+      <span>{{ productosDisponiblesFiltrados.length }}</span>
+      <p>Disponibles</p>
+    </article>
+    <article>
+      <span>{{ productosAgotadosFiltrados.length }}</span>
+      <p>Agotados</p>
+    </article>
+    <article>
+      <span>{{ productosProximamenteFiltrados.length }}</span>
+      <p>Próximamente</p>
+    </article>
+    <article>
+      <span>{{ productosCatalogoFiltrados.length + productosProximamenteFiltrados.length }}</span>
+      <p>Resultados</p>
+    </article>
+  </section>
+
   <div class="filtros">
-    <div class="filtro-group" *ngIf="authService.isAdmin">
-      <label>Categoria</label>
+    <div class="filtro-group">
+      <label>Categoría</label>
       <details class="filtro-multiple">
         <summary>
           <span>{{ resumenSeleccion(filtroCategorias, 'Todas') }}</span>
@@ -37,13 +77,13 @@
               [checked]="estaSeleccionado(filtroEstados, e)"
               (change)="toggleFiltro(filtroEstados, e)" />
             <span class="filtro-check__box" aria-hidden="true"></span>
-            <span>{{ e }}</span>
+            <span>{{ mostrarEstado(e) }}</span>
           </label>
         </div>
       </details>
     </div>
 
-    <div class="filtro-group">
+    <div class="filtro-group" *ngIf="authService.isAdmin">
       <label>Stock</label>
       <details class="filtro-multiple">
         <summary>
@@ -63,12 +103,12 @@
     </div>
 
     <div class="filtro-group">
-      <label for="precioMin">Precio minimo (EUR)</label>
+      <label for="precioMin">Precio mínimo (EUR)</label>
       <input type="number" [(ngModel)]="precioMin" (change)="cargar()" id="precioMin" placeholder="Ej: 10" class="filtro-input" />
     </div>
 
     <div class="filtro-group">
-      <label for="precioMax">Precio maximo (EUR)</label>
+      <label for="precioMax">Precio máximo (EUR)</label>
       <input type="number" [(ngModel)]="precioMax" (change)="cargar()" id="precioMax" placeholder="Ej: 80" class="filtro-input" />
     </div>
 
@@ -76,11 +116,33 @@
   </div>
 
   <div class="resultados-info" *ngIf="!loading && !errorMsg">
-    Mostrando {{ productosFiltrados.length }} de {{ products.length }} productos
+    Mostrando {{ productosCatalogoFiltrados.length + productosProximamenteFiltrados.length }} productos
   </div>
 
-  <div class="productos-grid" *ngIf="!loading && !errorMsg">
-    <div class="producto-card" *ngFor="let producto of productosFiltrados">
+  <section class="proximamente-section" *ngIf="!loading && !errorMsg && productosProximamenteFiltrados.length">
+    <div class="proximamente-section__header">
+      <div>
+        <p>Muy pronto</p>
+        <h2>Próximamente en CEOS</h2>
+      </div>
+      <span>{{ productosProximamenteFiltrados.length }} lanzamiento{{ productosProximamenteFiltrados.length === 1 ? '' : 's' }}</span>
+    </div>
+
+    <div class="productos-grid productos-grid--proximamente">
+      <ng-container *ngFor="let producto of productosProximamenteFiltrados">
+        <ng-container *ngTemplateOutlet="productoCard; context: { $implicit: producto }"></ng-container>
+      </ng-container>
+    </div>
+  </section>
+
+  <div class="productos-grid" *ngIf="!loading && !errorMsg && productosCatalogoFiltrados.length">
+    <ng-container *ngFor="let producto of productosCatalogoFiltrados">
+      <ng-container *ngTemplateOutlet="productoCard; context: { $implicit: producto }"></ng-container>
+    </ng-container>
+  </div>
+
+  <ng-template #productoCard let-producto>
+    <div class="producto-card" [ngClass]="{ 'producto-card--proximamente': producto.status === 'Proximamente' }">
       <div
         *ngIf="authService.isAdmin || producto.status !== 'Activo'"
         class="producto-estado"
@@ -92,7 +154,7 @@
         }">
         {{
           producto.status === 'Proximamente'
-            ? 'PROXIMAMENTE'
+            ? 'PRÓXIMAMENTE'
             : producto.status === 'Oculto'
               ? 'OCULTO'
               : producto.stock === 0
@@ -144,7 +206,7 @@
         </div>
       </ng-template>
     </div>
-  </div>
+  </ng-template>
 
   <div *ngIf="loading" class="estado-mensaje">
     Cargando productos...
@@ -154,7 +216,7 @@
     {{ errorMsg }}
   </div>
 
-  <div *ngIf="!loading && !errorMsg && productosFiltrados.length === 0" class="estado-mensaje">
+  <div *ngIf="!loading && !errorMsg && productosCatalogoFiltrados.length === 0 && productosProximamenteFiltrados.length === 0" class="estado-mensaje">
     No hay productos que coincidan con los filtros.
   </div>
 </section>
@@ -163,6 +225,19 @@
   <div class="cart-modal__dialog" (click)="$event.stopPropagation()">
     <p class="cart-modal__eyebrow">Añadir al carrito</p>
     <h2>{{ productPendingCart.name }}</h2>
+    <div class="cart-modal__sizes" *ngIf="hasSizes(productPendingCart)">
+      <span>Talla</span>
+      <div>
+        <button
+          type="button"
+          *ngFor="let talla of productPendingCart.availableSizes"
+          [disabled]="stockForSize(productPendingCart, talla) <= 0"
+          [class.cart-modal__size--active]="selectedCartSize === talla"
+          (click)="selectCartSize(talla)">
+          {{ talla }}
+        </button>
+      </div>
+    </div>
     <p class="cart-modal__text">¿Quieres añadir este producto al carrito?</p>
 
     <div class="cart-modal__actions">

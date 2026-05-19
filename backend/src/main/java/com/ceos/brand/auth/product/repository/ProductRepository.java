@@ -7,7 +7,9 @@ import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -28,6 +30,7 @@ public class ProductRepository {
         rs.getBigDecimal("price"),
         rs.getString("image_url"),
         parseImages(rs.getString("images_json")),
+        parseSizeStock(rs.getString("size_stock_json")),
         rs.getString("description"),
         rs.getString("status"),
         rs.getInt("stock")
@@ -41,7 +44,7 @@ public class ProductRepository {
     public List<Product> findAll() {
         return jdbcTemplate.query(
             """
-            SELECT id, name, category, price, image_url, images_json, description, status, stock
+            SELECT id, name, category, price, image_url, images_json, size_stock_json, description, status, stock
             FROM products
             ORDER BY id ASC
             """,
@@ -52,7 +55,7 @@ public class ProductRepository {
     public List<Product> search(boolean includeHidden, String category, String status, String stock, BigDecimal minPrice, BigDecimal maxPrice) {
         StringBuilder sql = new StringBuilder(
             """
-            SELECT id, name, category, price, image_url, images_json, description, status, stock
+            SELECT id, name, category, price, image_url, images_json, size_stock_json, description, status, stock
             FROM products
             WHERE 1 = 1
             """
@@ -132,7 +135,7 @@ public class ProductRepository {
     public List<Product> findVisible() {
         return jdbcTemplate.query(
             """
-            SELECT id, name, category, price, image_url, images_json, description, status, stock
+            SELECT id, name, category, price, image_url, images_json, size_stock_json, description, status, stock
             FROM products
             WHERE status <> 'Oculto'
             ORDER BY id ASC
@@ -144,7 +147,7 @@ public class ProductRepository {
     public List<Product> findFeatured(int limit) {
         return jdbcTemplate.query(
             """
-            SELECT id, name, category, price, image_url, images_json, description, status, stock
+            SELECT id, name, category, price, image_url, images_json, size_stock_json, description, status, stock
             FROM products
             WHERE status <> 'Oculto'
             ORDER BY id ASC
@@ -158,7 +161,7 @@ public class ProductRepository {
     public Optional<Product> findById(Long id) {
         List<Product> products = jdbcTemplate.query(
             """
-            SELECT id, name, category, price, image_url, images_json, description, status, stock
+            SELECT id, name, category, price, image_url, images_json, size_stock_json, description, status, stock
             FROM products
             WHERE id = ?
             """,
@@ -172,7 +175,7 @@ public class ProductRepository {
     public Optional<Product> findVisibleById(Long id) {
         List<Product> products = jdbcTemplate.query(
             """
-            SELECT id, name, category, price, image_url, images_json, description, status, stock
+            SELECT id, name, category, price, image_url, images_json, size_stock_json, description, status, stock
             FROM products
             WHERE id = ? AND status <> 'Oculto'
             """,
@@ -189,8 +192,8 @@ public class ProductRepository {
         jdbcTemplate.update(connection -> {
             PreparedStatement statement = connection.prepareStatement(
                 """
-                INSERT INTO products (name, category, price, image_url, images_json, description, status, stock)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                INSERT INTO products (name, category, price, image_url, images_json, size_stock_json, description, status, stock)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                 Statement.RETURN_GENERATED_KEYS
             );
@@ -199,9 +202,10 @@ public class ProductRepository {
             statement.setBigDecimal(3, product.price());
             statement.setString(4, product.imageUrl());
             statement.setString(5, writeImages(product.images()));
-            statement.setString(6, product.description());
-            statement.setString(7, product.status());
-            statement.setInt(8, product.stock());
+            statement.setString(6, writeSizeStock(product.sizeStock()));
+            statement.setString(7, product.description());
+            statement.setString(8, product.status());
+            statement.setInt(9, product.stock());
             return statement;
         }, keyHolder);
 
@@ -217,6 +221,7 @@ public class ProductRepository {
             product.price(),
             product.imageUrl(),
             product.images(),
+            product.sizeStock(),
             product.description(),
             product.status(),
             product.stock()
@@ -227,7 +232,7 @@ public class ProductRepository {
         jdbcTemplate.update(
             """
             UPDATE products
-            SET name = ?, category = ?, price = ?, image_url = ?, images_json = ?, description = ?, status = ?, stock = ?
+            SET name = ?, category = ?, price = ?, image_url = ?, images_json = ?, size_stock_json = ?, description = ?, status = ?, stock = ?
             WHERE id = ?
             """,
             product.name(),
@@ -235,6 +240,7 @@ public class ProductRepository {
             product.price(),
             product.imageUrl(),
             writeImages(product.images()),
+            writeSizeStock(product.sizeStock()),
             product.description(),
             product.status(),
             product.stock(),
@@ -248,6 +254,7 @@ public class ProductRepository {
             product.price(),
             product.imageUrl(),
             product.images(),
+            product.sizeStock(),
             product.description(),
             product.status(),
             product.stock()
@@ -271,6 +278,19 @@ public class ProductRepository {
         );
     }
 
+    public int updateStock(Long id, Map<String, Integer> sizeStock, Integer stock) {
+        return jdbcTemplate.update(
+            """
+            UPDATE products
+            SET size_stock_json = ?, stock = ?
+            WHERE id = ?
+            """,
+            writeSizeStock(sizeStock),
+            stock,
+            id
+        );
+    }
+
     private List<String> parseImages(String imagesJson) {
         try {
             return objectMapper.readValue(imagesJson, new TypeReference<>() {});
@@ -284,6 +304,23 @@ public class ProductRepository {
             return objectMapper.writeValueAsString(images == null ? List.of() : images);
         } catch (Exception exception) {
             return "[]";
+        }
+    }
+
+    private Map<String, Integer> parseSizeStock(String sizeStockJson) {
+        try {
+            Map<String, Integer> parsed = objectMapper.readValue(sizeStockJson, new TypeReference<LinkedHashMap<String, Integer>>() {});
+            return parsed == null ? Map.of() : parsed;
+        } catch (Exception exception) {
+            return Map.of();
+        }
+    }
+
+    public String writeSizeStock(Map<String, Integer> sizeStock) {
+        try {
+            return objectMapper.writeValueAsString(sizeStock == null ? Map.of() : sizeStock);
+        } catch (Exception exception) {
+            return "{}";
         }
     }
 }

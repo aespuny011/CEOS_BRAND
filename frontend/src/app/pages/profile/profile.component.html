@@ -1,0 +1,112 @@
+<section class="account-page">
+  <div class="account-hero">
+    <p>Mi cuenta</p>
+    <h1>Perfil</h1>
+  </div>
+
+  <div class="account-grid">
+    <form class="account-panel" [formGroup]="profileForm" (ngSubmit)="save()">
+      <div class="panel-heading">
+        <h2>Datos personales</h2>
+        <p>Actualiza tu nombre y el email asociado a tu cuenta.</p>
+      </div>
+
+      <label>
+        <span>Nombre</span>
+        <input type="text" formControlName="name" />
+        <small class="field-error" *ngIf="isInvalid('name')">Introduce un nombre valido.</small>
+      </label>
+
+      <label>
+        <span>Email</span>
+        <input type="email" formControlName="email" />
+        <small class="field-error" *ngIf="isInvalid('email')">Introduce un email valido.</small>
+      </label>
+
+      <p class="account-message account-message--success" *ngIf="successMsg">{{ successMsg }}</p>
+      <p class="account-message account-message--error" *ngIf="errorMsg">{{ errorMsg }}</p>
+
+      <button type="submit" [disabled]="loading">
+        {{ loading ? 'Guardando...' : 'Guardar cambios' }}
+      </button>
+    </form>
+
+    <form class="account-panel" [formGroup]="passwordForm" (ngSubmit)="savePassword()">
+      <div class="panel-heading">
+        <h2>Seguridad</h2>
+        <p>Cambia tu contraseña usando tu contraseña actual.</p>
+      </div>
+
+      <label>
+        <span>Contraseña actual</span>
+        <div class="password-field">
+          <input
+            [type]="showCurrentPassword ? 'text' : 'password'"
+            formControlName="currentPassword"
+            autocomplete="current-password"
+          />
+          <button
+            type="button"
+            class="password-toggle"
+            (click)="togglePasswordVisibility('currentPassword')"
+            [attr.aria-label]="showCurrentPassword ? 'Ocultar contraseña actual' : 'Mostrar contraseña actual'"
+            [attr.aria-pressed]="showCurrentPassword"
+          >
+            <span class="password-toggle__icon" aria-hidden="true"></span>
+          </button>
+        </div>
+        <small class="field-error" *ngIf="isPasswordInvalid('currentPassword')">Introduce tu contraseña actual.</small>
+      </label>
+
+      <label>
+        <span>Nueva contraseña</span>
+        <div class="password-field">
+          <input
+            [type]="showNewPassword ? 'text' : 'password'"
+            formControlName="newPassword"
+            autocomplete="new-password"
+            placeholder="Mínimo 8 caracteres, mayúscula, número y símbolo"
+          />
+          <button
+            type="button"
+            class="password-toggle"
+            (click)="togglePasswordVisibility('newPassword')"
+            [attr.aria-label]="showNewPassword ? 'Ocultar nueva contraseña' : 'Mostrar nueva contraseña'"
+            [attr.aria-pressed]="showNewPassword"
+          >
+            <span class="password-toggle__icon" aria-hidden="true"></span>
+          </button>
+        </div>
+        <small class="field-error" *ngFor="let error of getPasswordErrors()">{{ error }}</small>
+      </label>
+
+      <label>
+        <span>Confirmar nueva contraseña</span>
+        <div class="password-field">
+          <input
+            [type]="showConfirmPassword ? 'text' : 'password'"
+            formControlName="confirmPassword"
+            autocomplete="new-password"
+          />
+          <button
+            type="button"
+            class="password-toggle"
+            (click)="togglePasswordVisibility('confirmPassword')"
+            [attr.aria-label]="showConfirmPassword ? 'Ocultar confirmacion' : 'Mostrar confirmacion'"
+            [attr.aria-pressed]="showConfirmPassword"
+          >
+            <span class="password-toggle__icon" aria-hidden="true"></span>
+          </button>
+        </div>
+        <small class="field-error" *ngIf="showPasswordMismatch()">Las contraseñas no coinciden.</small>
+      </label>
+
+      <p class="account-message account-message--success" *ngIf="passwordSuccessMsg">{{ passwordSuccessMsg }}</p>
+      <p class="account-message account-message--error" *ngIf="passwordErrorMsg">{{ passwordErrorMsg }}</p>
+
+      <button type="submit" [disabled]="passwordLoading">
+        {{ passwordLoading ? 'Actualizando...' : 'Cambiar contraseña' }}
+      </button>
+    </form>
+  </div>
+</section>

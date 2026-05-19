@@ -55,13 +55,13 @@ export class CartComponent implements OnInit, OnDestroy {
     this.cartService.clear();
   }
 
-  removeProduct(productId: number): void {
+  removeProduct(productId: number, size = ''): void {
     this.purchaseCompleted = false;
     this.closePayment();
-    this.cartService.removeProduct(productId);
+    this.cartService.removeProduct(productId, size);
   }
 
-  changeQuantity(productId: number, event: Event): void {
+  changeQuantity(productId: number, size: string, event: Event): void {
     const input = event.target as HTMLInputElement | null;
     const quantity = Number(input?.value);
 
@@ -69,7 +69,7 @@ export class CartComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.cartService.updateQuantity(productId, quantity);
+    this.cartService.updateQuantity(productId, quantity, size);
   }
 
   openPayment(): void {

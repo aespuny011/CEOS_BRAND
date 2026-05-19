@@ -1,0 +1,6 @@
+{
+  "cSpell.ignorePaths": [
+    "frontend/tsconfig.json",
+    "frontend/tsconfig.*.json"
+  ]
+}

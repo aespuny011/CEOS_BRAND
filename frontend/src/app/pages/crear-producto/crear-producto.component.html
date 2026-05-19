@@ -1,4 +1,3 @@
-<!-- src/app/pages/crear-producto/crear-producto.component.html -->
 <section class="crear">
   <div class="crear__header">
     <h1>Añadir producto</h1>
@@ -83,9 +82,23 @@
       </small>
     </div>
 
-    <!-- IMAGEN PRINCIPAL -->
+    <div class="campo" *ngIf="tallasActuales.length">
+      <label>Stock por talla</label>
+      <div class="stock-tallas">
+        <label *ngFor="let talla of tallasActuales">
+          <span>{{ talla }}</span>
+          <input
+            type="number"
+            min="0"
+            step="1"
+            [value]="stockTalla(talla)"
+            (input)="cambiarStockTalla(talla, $event)" />
+        </label>
+      </div>
+    </div>
+
     <div class="campo">
-      <label>Imagen Principal *</label>
+      <label>Imagen principal *</label>
       <input
         #imagenPrincipalInput
         type="file"
@@ -96,8 +109,8 @@
         <h4>Imagen principal:</h4>
         <div class="imagen-preview-item">
           <img [src]="imagenPrincipal" alt="Imagen principal" />
-          <button 
-            type="button" 
+          <button
+            type="button"
             class="boton boton--pequeno boton--peligro"
             (click)="quitarImagenPrincipal(imagenPrincipalInput)"
           >
@@ -110,9 +123,8 @@
       </small>
     </div>
 
-    <!-- IMÁGENES ADICIONALES -->
     <div class="campo">
-      <label>Imágenes Adicionales</label>
+      <label>Imágenes adicionales</label>
       <input
         #imagenesAdicionalesInput
         type="file"
@@ -126,13 +138,13 @@
       >
         <h4>Imágenes adicionales ({{ formulario.value.images.length }}):</h4>
         <div class="imagenes-preview">
-          <div 
-            class="imagen-preview-item" 
+          <div
+            class="imagen-preview-item"
             *ngFor="let img of formulario.value.images; let i = index"
           >
             <img [src]="img" alt="Vista previa {{ i + 1 }}" />
-            <button 
-              type="button" 
+            <button
+              type="button"
               class="boton boton--pequeno boton--peligro"
               (click)="quitarImagenAdicional(i, imagenesAdicionalesInput)"
             >
@@ -143,20 +155,19 @@
       </div>
     </div>
 
-    <!-- VISTA PREVIA COMPLETA -->
     <div *ngIf="todasLasImagenes.length > 0" class="campo vista-previa-completa">
       <h3>Todas las imágenes ({{ todasLasImagenes.length }}):</h3>
       <div class="imagenes-preview">
-        <div 
-          class="imagen-preview-item" 
+        <div
+          class="imagen-preview-item"
           *ngFor="let img of todasLasImagenes; let i = index"
         >
           <img [src]="img" alt="Producto imagen {{ i + 1 }}" />
           <span class="badge" *ngIf="i === 0">Principal</span>
         </div>
       </div>
-      <button 
-        type="button" 
+      <button
+        type="button"
         class="boton boton--secundario"
         (click)="quitarTodasLasImagenes(imagenPrincipalInput, imagenesAdicionalesInput)"
       >

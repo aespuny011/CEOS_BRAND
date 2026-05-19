@@ -1,4 +1,81 @@
 <app-navbar></app-navbar>
-<main>
+<main class="app-main">
   <router-outlet></router-outlet>
 </main>
+
+<footer class="site-footer">
+  <div class="site-footer__inner">
+    <section class="site-footer__brand">
+      <a routerLink="/" class="site-footer__logo">CEOS <span>BRAND</span></a>
+      <p>Marca nacida en Osuna, Sevilla, creada por cinco amigos con ganas de hacer ropa con identidad propia.</p>
+
+      <div class="site-footer__social" aria-label="Redes sociales">
+        <a href="https://www.facebook.com/profile.php?id=61550355430431" target="_blank" rel="noopener noreferrer" aria-label="Facebook de CEOS Brand">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M14 8.6V6.8c0-.8.5-1 1-1h1.4V3.2C15.7 3.1 15 3 14.2 3c-2.5 0-4.2 1.5-4.2 4.3v1.3H7.2v3.1H10V21h3.4v-9.3h2.7l.5-3.1H14Z" />
+          </svg>
+        </a>
+        <a href="https://www.instagram.com/ceos.brand/" target="_blank" rel="noopener noreferrer" aria-label="Instagram de CEOS Brand">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M7.7 2.8h8.6a4.9 4.9 0 0 1 4.9 4.9v8.6a4.9 4.9 0 0 1-4.9 4.9H7.7a4.9 4.9 0 0 1-4.9-4.9V7.7a4.9 4.9 0 0 1 4.9-4.9Zm0 2A2.9 2.9 0 0 0 4.8 7.7v8.6a2.9 2.9 0 0 0 2.9 2.9h8.6a2.9 2.9 0 0 0 2.9-2.9V7.7a2.9 2.9 0 0 0-2.9-2.9H7.7Zm4.3 3.5a3.7 3.7 0 1 1 0 7.4 3.7 3.7 0 0 1 0-7.4Zm0 2a1.7 1.7 0 1 0 0 3.4 1.7 1.7 0 0 0 0-3.4Zm4-2.7a1 1 0 1 1 0 2 1 1 0 0 1 0-2Z" />
+          </svg>
+        </a>
+        <a href="https://www.tiktok.com/@ceos.brand?lang=es" target="_blank" rel="noopener noreferrer" aria-label="TikTok de CEOS Brand">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M15.4 3c.3 2.4 1.6 3.8 3.8 4v3.1a7.1 7.1 0 0 1-3.8-1.2v5.7c0 3.7-2.2 6.4-5.8 6.4-3 0-5.1-2.1-5.1-5 0-3.5 3.3-5.6 6.4-4.9v3.2c-1.6-.5-3.1.3-3.1 1.7 0 1.1.8 1.9 1.9 1.9 1.4 0 2.3-.8 2.3-2.8V3h3.4Z" />
+          </svg>
+        </a>
+      </div>
+    </section>
+
+    <nav class="site-footer__links" aria-label="Enlaces del pie de pagina">
+      <h2>Explorar</h2>
+      <a routerLink="/">Inicio</a>
+      <a routerLink="/productos">Catalogo</a>
+      <a routerLink="/sobre-nosotros">Sobre nosotros</a>
+      <a routerLink="/contacto">Contactanos</a>
+    </nav>
+
+    <nav class="site-footer__links" aria-label="Ayuda y cuenta">
+      <h2>Ayuda</h2>
+      <a routerLink="/ayuda">Preguntas frecuentes</a>
+      <a routerLink="/carrito">Carrito</a>
+      <a routerLink="/mis-pedidos">Mis pedidos</a>
+      <a routerLink="/mi-perfil">Mi perfil</a>
+    </nav>
+
+    <section class="site-footer__contact" aria-labelledby="footer-contact-title">
+      <h2 id="footer-contact-title">Contacto</h2>
+      <ul>
+        <li>
+          <span>Email</span>
+          <a href="mailto:ceos5oficial@gmail.com">ceos5oficial&#64;gmail.com</a>
+        </li>
+        <li>
+          <span>Origen</span>
+          <p>Osuna, Sevilla</p>
+        </li>
+        <li>
+          <span>Horario</span>
+          <p>Lunes a viernes, 10:00 - 18:00</p>
+        </li>
+      </ul>
+    </section>
+  </div>
+
+  <div class="site-footer__trust" aria-label="Ventajas de compra">
+    <span>Envios desde Osuna</span>
+    <span>Cambios de talla con ayuda personalizada</span>
+    <span>Pago seguro</span>
+    <span>Atencion directa por email</span>
+  </div>
+
+  <div class="site-footer__bottom">
+    <span>&copy; 2026 CEOS Brand. Todos los derechos reservados.</span>
+    <nav aria-label="Enlaces legales">
+      <a routerLink="/ayuda">Politica de privacidad</a>
+      <a routerLink="/ayuda">Terminos y condiciones</a>
+      <a routerLink="/contacto">Contacto</a>
+    </nav>
+  </div>
+</footer>

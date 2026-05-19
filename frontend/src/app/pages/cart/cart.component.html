@@ -18,8 +18,8 @@
 
     <div *ngIf="!hasItems" class="cart-empty">
       <h2>No hay productos en el carrito</h2>
-      <p>Anade productos desde el catalogo para empezar a comprar.</p>
-      <a routerLink="/productos" class="cart-link">Ir al catalogo</a>
+      <p>Añade productos desde el catálogo para empezar a comprar.</p>
+      <a routerLink="/productos" class="cart-link">Ir al catálogo</a>
     </div>
 
     <div *ngIf="hasItems" class="cart-layout">
@@ -30,6 +30,7 @@
           <div class="cart-item__info">
             <p class="cart-item__category">{{ item.category }}</p>
             <h2>{{ item.name }}</h2>
+            <p class="cart-item__size" *ngIf="item.size">Talla {{ item.size }}</p>
             <p class="cart-item__price">{{ item.price | currency:'EUR':'symbol':'1.2-2' }}</p>
           </div>
 
@@ -41,14 +42,14 @@
               min="1"
               [max]="item.maxStock"
               [value]="item.quantity"
-              (change)="changeQuantity(item.productId, $event)" />
+              (change)="changeQuantity(item.productId, item.size, $event)" />
           </label>
 
           <div class="cart-item__total">
             {{ item.lineTotal | currency:'EUR':'symbol':'1.2-2' }}
           </div>
 
-          <button type="button" class="cart-item__remove" (click)="removeProduct(item.productId)">
+          <button type="button" class="cart-item__remove" (click)="removeProduct(item.productId, item.size)">
             Quitar
           </button>
         </article>
@@ -78,7 +79,7 @@
             <h2>Tarjeta bancaria</h2>
           </div>
           <button type="button" class="payment-modal__close" (click)="closePayment()" [disabled]="isProcessingPayment">
-            X
+            ×
           </button>
         </div>
 
@@ -95,7 +96,7 @@
         </label>
 
         <label class="payment-field">
-          <span>Numero de tarjeta</span>
+          <span>Número de tarjeta</span>
           <input
             type="text"
             inputmode="numeric"
@@ -104,7 +105,7 @@
             maxlength="19"
             placeholder="1234 5678 9012 3456"
             (input)="formatCardNumber()" />
-          <small *ngIf="isInvalid('cardNumber')">Usa 16 digitos.</small>
+          <small *ngIf="isInvalid('cardNumber')">Usa 16 dígitos.</small>
         </label>
 
         <div class="payment-modal__grid">
@@ -124,7 +125,7 @@
           <label class="payment-field">
             <span>CVV</span>
             <input type="password" inputmode="numeric" formControlName="cardCvv" autocomplete="new-password" maxlength="4" placeholder="123" />
-            <small *ngIf="isInvalid('cardCvv')">3 o 4 digitos.</small>
+            <small *ngIf="isInvalid('cardCvv')">3 o 4 dígitos.</small>
           </label>
         </div>
 
@@ -143,7 +144,7 @@
       <p class="purchase-success__eyebrow">Pago completado</p>
       <h1>Gracias por tu compra</h1>
       <p>{{ checkoutMessage }}</p>
-      <a routerLink="/productos" class="purchase-success__button">Volver al catalogo</a>
+      <a routerLink="/productos" class="purchase-success__button">Volver al catálogo</a>
     </div>
   </ng-template>
 </section>

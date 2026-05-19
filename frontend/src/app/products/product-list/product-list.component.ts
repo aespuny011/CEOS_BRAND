@@ -16,6 +16,9 @@ export class ProductListComponent implements OnInit {
   loading = true;
   errorMsg: string | null = null;
   productPendingCart: Product | null = null;
+  selectedCartSize = '';
+  busqueda = '';
+  ordenCatalogo: 'recientes' | 'precio-asc' | 'precio-desc' | 'nombre' = 'recientes';
 
   categorias: string[] = ['Camiseta', 'Sudadera', 'Pantalón', 'Accesorio', 'Chaqueta'];
   filtroCategorias: string[] = [];
@@ -63,7 +66,7 @@ export class ProductListComponent implements OnInit {
 
   get productosFiltrados(): Product[] {
     return this.products.filter((product) => {
-      if (!this.authService.isAdmin && product.status !== 'Activo') {
+      if (!this.authService.isAdmin && product.status === 'Oculto') {
         return false;
       }
 
@@ -72,12 +75,41 @@ export class ProductListComponent implements OnInit {
       const stockMatches = !this.filtrosStock.length || this.filtrosStock.some((stock) => this.productMatchesStock(product, stock));
       const minPriceMatches = this.precioMin == null || product.price >= this.precioMin;
       const maxPriceMatches = this.precioMax == null || product.price <= this.precioMax;
+      const searchMatches = this.productMatchesSearch(product);
 
-      return categoryMatches && statusMatches && stockMatches && minPriceMatches && maxPriceMatches;
+      return categoryMatches && statusMatches && stockMatches && minPriceMatches && maxPriceMatches && searchMatches;
     });
   }
 
+  get productosCatalogoFiltrados(): Product[] {
+    return this.sortProducts(this.productosFiltrados.filter((product) => product.status !== 'Proximamente'));
+  }
+
+  get productosDisponiblesFiltrados(): Product[] {
+    return this.productosFiltrados.filter((product) => product.status === 'Activo' && product.stock > 0);
+  }
+
+  get productosProximamenteFiltrados(): Product[] {
+    return this.sortProducts(this.productosFiltrados.filter((product) => product.status === 'Proximamente'));
+  }
+
+  get productosAgotadosFiltrados(): Product[] {
+    return this.productosFiltrados.filter((product) => (
+      product.stock === 0 &&
+      product.status !== 'Proximamente' &&
+      product.status !== 'Oculto'
+    ));
+  }
+
+  get totalProductosContables(): number {
+    return this.authService.isAdmin
+      ? this.products.length
+      : this.products.filter((product) => this.isVisibleForCustomer(product)).length;
+  }
+
   limpiarFiltros(): void {
+    this.busqueda = '';
+    this.ordenCatalogo = 'recientes';
     this.filtroCategorias = [];
     this.precioMin = null;
     this.precioMax = null;
@@ -107,8 +139,12 @@ export class ProductListComponent implements OnInit {
       return textoBase;
     }
 
-    const textos = lista.map((valor) => opciones?.find((opcion) => opcion.valor === valor)?.texto ?? valor);
+    const textos = lista.map((valor) => opciones?.find((opcion) => opcion.valor === valor)?.texto ?? this.mostrarEstado(valor));
     return textos.length > 2 ? `${textos.slice(0, 2).join(', ')} +${textos.length - 2}` : textos.join(', ');
+  }
+
+  mostrarEstado(estado: string): string {
+    return estado === 'Proximamente' ? 'Próximamente' : estado;
   }
 
   private productMatchesStatus(product: Product, status: string): boolean {
@@ -117,6 +153,36 @@ export class ProductListComponent implements OnInit {
     }
 
     return product.status === status;
+  }
+
+  private isVisibleForCustomer(product: Product): boolean {
+    return product.status !== 'Oculto';
+  }
+
+  private productMatchesSearch(product: Product): boolean {
+    const search = this.busqueda.trim().toLowerCase();
+    if (!search) {
+      return true;
+    }
+
+    return [product.name, product.category, product.description]
+      .filter(Boolean)
+      .some((value) => value.toLowerCase().includes(search));
+  }
+
+  private sortProducts(products: Product[]): Product[] {
+    return [...products].sort((a, b) => {
+      switch (this.ordenCatalogo) {
+        case 'precio-asc':
+          return a.price - b.price;
+        case 'precio-desc':
+          return b.price - a.price;
+        case 'nombre':
+          return a.name.localeCompare(b.name);
+        default:
+          return b.id - a.id;
+      }
+    });
   }
 
   private productMatchesStock(product: Product, stock: string): boolean {
@@ -171,6 +237,7 @@ export class ProductListComponent implements OnInit {
     }
 
     this.productPendingCart = product;
+    this.selectedCartSize = this.firstAvailableSize(product);
   }
 
   confirmAddToCart(): void {
@@ -178,12 +245,35 @@ export class ProductListComponent implements OnInit {
       return;
     }
 
-    this.cartService.addProduct(this.productPendingCart);
+    this.cartService.addProduct(this.productPendingCart, 1, this.selectedCartSize);
     this.productPendingCart = null;
+    this.selectedCartSize = '';
   }
 
   cancelAddToCart(): void {
     this.productPendingCart = null;
+    this.selectedCartSize = '';
+  }
+
+  hasSizes(product: Product | null): boolean {
+    return (product?.availableSizes?.length ?? 0) > 0;
+  }
+
+  selectCartSize(size: string): void {
+    if (this.stockForSize(this.productPendingCart, size) <= 0) {
+      return;
+    }
+    this.selectedCartSize = size;
+  }
+
+  stockForSize(product: Product | null, size: string): number {
+    return product?.sizeStock?.[size] ?? 0;
+  }
+
+  private firstAvailableSize(product: Product): string {
+    return product.availableSizes?.find((size) => (product.sizeStock?.[size] ?? 0) > 0)
+      ?? product.availableSizes?.[0]
+      ?? '';
   }
 
   imagenFallback(categoria: string): string {
