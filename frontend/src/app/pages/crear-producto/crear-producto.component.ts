@@ -21,10 +21,10 @@ export class CrearProductoComponent {
     'Camiseta',
     'Sudadera',
     'Pantalón',
-    'Accesorio',
-    'Chaqueta',
+    'Gorra',
   ];
   estados: EstadoProducto[] = ['Activo', 'Oculto', 'Agotado', 'Proximamente'];
+  sizeStock: Record<string, number> = {};
 
   private readonly TAMANO_MAXIMO_ORIGINAL = 12 * 1024 * 1024; // 12 MB
   private readonly MAX_LADO = 1200;
@@ -203,6 +203,7 @@ export class CrearProductoComponent {
       description: this.formulario.value.description!,
       status: this.formulario.value.status!,
       stock: this.formulario.value.stock!,
+      sizeStock: this.stockPorTallaParaGuardar(),
     };
 
     console.log('Producto a guardar:', nuevoProducto);
@@ -224,6 +225,43 @@ export class CrearProductoComponent {
   tocado(nombre: string): boolean {
     const control = this.formulario.get(nombre);
     return control ? control.touched && control.invalid : false;
+  }
+
+  get tallasActuales(): string[] {
+    return this.tallasPorCategoria(this.formulario.value.category || '');
+  }
+
+  stockTalla(talla: string): number {
+    return this.sizeStock[talla] ?? 0;
+  }
+
+  cambiarStockTalla(talla: string, event: Event): void {
+    const input = event.target as HTMLInputElement | null;
+    this.sizeStock[talla] = Math.max(0, Number(input?.value ?? 0));
+    this.formulario.patchValue({ stock: this.totalStockTallas() });
+  }
+
+  private stockPorTallaParaGuardar(): Record<string, number> {
+    return this.tallasActuales.reduce((stock, talla) => {
+      stock[talla] = this.stockTalla(talla);
+      return stock;
+    }, {} as Record<string, number>);
+  }
+
+  private totalStockTallas(): number {
+    return this.tallasActuales.reduce((total, talla) => total + this.stockTalla(talla), 0);
+  }
+
+  private tallasPorCategoria(categoria: string): string[] {
+    if (categoria === 'Camiseta' || categoria === 'Sudadera') {
+      return ['S', 'M', 'L', 'XL'];
+    }
+
+    if (categoria === 'Pantalón' || categoria === 'Pantalon') {
+      return ['34', '36', '38', '40', '42', '44'];
+    }
+
+    return [];
   }
 
   private async comprimirImagen(

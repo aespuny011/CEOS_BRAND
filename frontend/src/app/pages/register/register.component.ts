@@ -12,6 +12,7 @@ import { AuthService } from '../../services/auth.service';
 export class RegisterComponent {
   errorMsg: string | null = null;
   loading = false;
+  showPassword = false;
 
   formulario = this.fb.group({
     name: ['', [Validators.required, Validators.minLength(2)]],
@@ -35,6 +36,10 @@ export class RegisterComponent {
 
   get passwordControl() {
     return this.formulario.get('password');
+  }
+
+  togglePasswordVisibility(): void {
+    this.showPassword = !this.showPassword;
   }
 
   enviar(): void {
@@ -101,7 +106,7 @@ export class RegisterComponent {
     const messages: string[] = [];
 
     if (errors['required']) {
-      messages.push('La contrasena es obligatoria.');
+      messages.push('La contraseña es obligatoria.');
       return messages;
     }
 

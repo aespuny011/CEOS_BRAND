@@ -19,7 +19,22 @@
 
       <label>
         <span>Contrasena</span>
-        <input type="password" formControlName="password" placeholder="Minimo 8 caracteres, mayuscula, numero y simbolo" />
+        <div class="password-field">
+          <input
+            [type]="showPassword ? 'text' : 'password'"
+            formControlName="password"
+            placeholder="Minimo 8 caracteres, mayuscula, numero y simbolo"
+          />
+          <button
+            type="button"
+            class="password-toggle"
+            (click)="togglePasswordVisibility()"
+            [attr.aria-label]="showPassword ? 'Ocultar contrasena' : 'Mostrar contrasena'"
+            [attr.aria-pressed]="showPassword"
+          >
+            <span class="password-toggle__icon" aria-hidden="true"></span>
+          </button>
+        </div>
         <small class="field-error" *ngFor="let error of getPasswordErrors()">{{ error }}</small>
       </label>
 
@@ -31,7 +46,7 @@
     </form>
 
     <p class="switch">
-      ¿Ya tienes cuenta?
+      Ya tienes cuenta?
       <a routerLink="/login">Inicia sesion</a>
     </p>
   </div>

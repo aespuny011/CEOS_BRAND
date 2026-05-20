@@ -13,7 +13,7 @@
       (loadeddata)="onVideoLoaded('izquierdo')">
       <source src="assets/videos/video-izquierdo.mp4" type="video/mp4" />
       <source src="assets/videos/video-izquierdo.webm" type="video/webm" />
-      Tu navegador no soporta videos.
+      Tu navegador no soporta vídeos.
     </video>
 
     <video
@@ -29,35 +29,35 @@
       (loadeddata)="onVideoLoaded('derecho')">
       <source src="assets/videos/video-derecho.mp4" type="video/mp4" />
       <source src="assets/videos/video-derecho.webm" type="video/webm" />
-      Tu navegador no soporta videos.
+      Tu navegador no soporta vídeos.
     </video>
 
     <div class="overlay">
       <h1>CEOS BRAND</h1>
       <p *ngIf="authService.currentUser; else guestMessage">
-        {{ authService.isAdmin ? 'Administra el catálogo, crea productos y controla la tienda.' : 'Explora el catalogo y compra tus prendas favoritas.' }}
+        {{ authService.isAdmin ? 'Administra el catálogo, crea productos y controla la tienda.' : 'Explora el catálogo y compra tus prendas favoritas.' }}
       </p>
 
       <ng-template #guestMessage>
-        <p>Inicia sesión o Regístrate para desbloquear el catálogo y empezar a comprar.</p>
+        <p>Inicia sesión o regístrate para desbloquear el catálogo y empezar a comprar.</p>
       </ng-template>
 
       <div class="cta-group" *ngIf="authService.currentUser; else guestActions">
         <ng-container *ngIf="authService.isAdmin; else customerActions">
-          <a routerLink="/productos" class="boton">Ver catalogo</a>
+          <a routerLink="/productos" class="boton">Ver catálogo</a>
           <a routerLink="/nuevo" class="boton boton--ghost">Añadir producto</a>
         </ng-container>
 
         <ng-template #customerActions>
-          <a routerLink="/productos" class="boton">Ir al catalogo</a>
+          <a routerLink="/productos" class="boton">Ir al catálogo</a>
           <a routerLink="/carrito" class="boton boton--ghost">Ver carrito</a>
         </ng-template>
       </div>
 
       <ng-template #guestActions>
         <div class="cta-group">
-          <a routerLink="/login" class="boton">Inicia sesion</a>
-          <a routerLink="/register" class="boton boton--ghost">Registrate</a>
+          <a routerLink="/login" class="boton">Inicia sesión</a>
+          <a routerLink="/register" class="boton boton--ghost">Regístrate</a>
         </div>
       </ng-template>
     </div>
@@ -66,20 +66,40 @@
 
 <div class="interaction-overlay" (click)="reproducirVideos()" (touchstart)="reproducirVideos()"></div>
 
+<section class="home-perks">
+  <article>
+    <span>Desde Osuna</span>
+    <strong>Marca joven sevillana</strong>
+    <p>Cinco amigos creando prendas con identidad propia.</p>
+  </article>
+
+  <article>
+    <span>Compra clara</span>
+    <strong>Productos reales y próximos lanzamientos</strong>
+    <p>Separamos lo disponible de lo que está por venir.</p>
+  </article>
+
+  <article>
+    <span>Atención directa</span>
+    <strong>Te respondemos nosotros</strong>
+    <p>Dudas de talla, pedidos o colaboraciones desde Contáctanos.</p>
+  </article>
+</section>
+
 <section class="home-products" *ngIf="featuredProducts.length">
   <div class="home-products__header">
     <div>
-      <h2>Productos que ya estan en la web</h2>
+      <h2>Productos que ya están en la web</h2>
     </div>
     <a routerLink="/productos" class="home-products__link" *ngIf="authService.currentUser; else loginToView">
-      Ver catalogo completo
+      Ver catálogo completo
     </a>
     <ng-template #loginToView>
-      <a routerLink="/login" class="home-products__link">Inicia sesion para comprar</a>
+      <a routerLink="/login" class="home-products__link">Inicia sesión para comprar</a>
     </ng-template>
   </div>
 
-  <div class="home-products__grid" [class.home-products__grid--locked]="!authService.currentUser">
+  <div class="home-products__grid">
     <article class="home-products__card" *ngFor="let product of featuredProducts">
       <img [src]="product.imageUrl" [alt]="product.name" />
       <div class="home-products__info">

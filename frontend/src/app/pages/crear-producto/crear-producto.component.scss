@@ -152,3 +152,18 @@
   gap: 1rem;
   margin-top: 2rem;
 }
+
+.stock-tallas {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+  gap: 12px;
+
+  label {
+    display: grid;
+    gap: 6px;
+  }
+
+  span {
+    font-weight: 800;
+  }
+}

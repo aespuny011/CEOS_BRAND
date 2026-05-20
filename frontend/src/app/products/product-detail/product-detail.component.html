@@ -1,6 +1,6 @@
 <section class="product-detail">
   <button class="boton-volver" (click)="volver()">
-    ← Volver al catalogo
+    ← Volver al catálogo
   </button>
 
   <div *ngIf="loading" class="estado-mensaje">
@@ -21,7 +21,7 @@
     </div>
 
     <div class="producto-info">
-      <div class="producto-estado" [ngClass]="'estado--' + (producto.status | lowercase)">
+      <div *ngIf="authService.isAdmin" class="producto-estado" [ngClass]="'estado--' + (producto.status | lowercase)">
         {{ mostrarEstado(producto.status) }}
       </div>
 
@@ -32,17 +32,39 @@
         {{ producto.price | currency:'EUR':'symbol':'1.2-2' }}
       </div>
 
-      <div class="producto-stock" [class.stock-bajo]="producto.stock < 5">
-        Stock disponible: <strong>{{ producto.stock }} unidades</strong>
+      <div *ngIf="authService.isAdmin" class="producto-stock" [class.stock-bajo]="producto.stock < 5">
+        Stock general: <strong>{{ producto.stock }} unidades</strong>
+      </div>
+
+      <div *ngIf="!authService.isAdmin && isSoldOut()" class="producto-agotado">
+        <strong>Este producto está agotado.</strong>
+        <span>No se puede añadir al carrito ahora mismo.</span>
+      </div>
+
+      <div class="producto-tallas" *ngIf="hasSizes()">
+        <h3>Talla</h3>
+        <div class="producto-tallas__grid">
+          <button
+            type="button"
+            *ngFor="let talla of producto.availableSizes"
+            [disabled]="!authService.isAdmin && stockForSize(talla) <= 0"
+            [class.producto-tallas__boton--active]="selectedSize === talla"
+            (click)="selectSize(talla)">
+            {{ talla }}
+          </button>
+        </div>
+        <p class="producto-tallas__stock" *ngIf="authService.isAdmin && selectedSize">
+          Stock talla {{ selectedSize }}: <strong>{{ stockForSize(selectedSize) }} unidades</strong>
+        </p>
       </div>
 
       <div class="producto-descripcion">
-        <h3>Descripcion</h3>
+        <h3>Descripción</h3>
         <p>{{ producto.description }}</p>
       </div>
 
       <div class="imagenes-adicionales" *ngIf="producto.images && producto.images.length > 0">
-        <h3>Mas imagenes</h3>
+        <h3>Más imágenes</h3>
         <div class="miniaturas-grid">
           <div class="miniatura" *ngFor="let img of producto.images; let i = index" (click)="abrirVisor(img)">
             <img [src]="img" [alt]="'Imagen adicional ' + (i + 1)" />
@@ -80,6 +102,7 @@
     <div class="cart-modal__dialog" (click)="$event.stopPropagation()">
       <p class="cart-modal__eyebrow">Añadir al carrito</p>
       <h2>{{ producto.name }}</h2>
+      <p class="cart-modal__size" *ngIf="hasSizes()">Talla seleccionada: <strong>{{ selectedSize }}</strong></p>
       <p class="cart-modal__text">¿Quieres añadir este producto al carrito?</p>
 
       <div class="cart-modal__actions">

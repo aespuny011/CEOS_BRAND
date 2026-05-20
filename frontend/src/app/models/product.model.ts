@@ -10,7 +10,9 @@ export interface Product {
   description: string;
   status: EstadoProducto;
   stock: number;
+  availableSizes: string[];
+  sizeStock: Record<string, number>;
   purchasable: boolean;
 }
 
-export type ProductPayload = Omit<Product, 'id' | 'purchasable'>;
+export type ProductPayload = Omit<Product, 'id' | 'availableSizes' | 'purchasable'>;

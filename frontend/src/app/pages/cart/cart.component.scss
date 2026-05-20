@@ -126,6 +126,18 @@ h1 {
   color: #c8b28d;
 }
 
+.cart-item__size {
+  display: inline-flex;
+  width: fit-content;
+  margin: 8px 0 0;
+  padding: 4px 9px;
+  border-radius: 999px;
+  background: #f3ede6;
+  color: #111;
+  font-size: 12px;
+  font-weight: 900;
+}
+
 .cart-item__info h2,
 .cart-item__price {
   margin: 0;
@@ -179,6 +191,18 @@ h1 {
 .cart-summary__button {
   width: 100%;
   margin-top: 24px;
+}
+
+.cart-summary__button:disabled {
+  cursor: wait;
+  opacity: 0.72;
+}
+
+.cart-summary__error {
+  margin: 14px 0 0;
+  color: #ffb4a8;
+  font-size: 0.92rem;
+  line-height: 1.45;
 }
 
 .payment-modal {

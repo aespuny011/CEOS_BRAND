@@ -47,6 +47,13 @@ public class UserRepository {
         return users.stream().findFirst();
     }
 
+    public List<User> findAll() {
+        return jdbcTemplate.query(
+            "SELECT id, name, email, password_hash FROM users ORDER BY id ASC",
+            USER_ROW_MAPPER
+        );
+    }
+
     public User create(String name, String email, String passwordHash) {
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
@@ -67,5 +74,24 @@ public class UserRepository {
         }
 
         return new User(key.longValue(), name, email, passwordHash);
+    }
+
+    public User updateProfile(Long id, String name, String email) {
+        jdbcTemplate.update(
+            "UPDATE users SET name = ?, email = ? WHERE id = ?",
+            name,
+            email,
+            id
+        );
+
+        return findById(id).orElseThrow(() -> new IllegalStateException("No se pudo actualizar el usuario."));
+    }
+
+    public void updatePassword(Long id, String passwordHash) {
+        jdbcTemplate.update(
+            "UPDATE users SET password_hash = ? WHERE id = ?",
+            passwordHash,
+            id
+        );
     }
 }

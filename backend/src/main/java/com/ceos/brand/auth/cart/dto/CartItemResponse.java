@@ -8,6 +8,7 @@ public record CartItemResponse(
     BigDecimal price,
     String imageUrl,
     String category,
+    String size,
     Integer quantity,
     Integer maxStock,
     BigDecimal lineTotal
