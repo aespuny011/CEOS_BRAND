@@ -144,7 +144,7 @@
   <ng-template #productoCard let-producto>
     <div class="producto-card" [ngClass]="{ 'producto-card--proximamente': producto.status === 'Proximamente' }">
       <div
-        *ngIf="authService.isAdmin || producto.status !== 'Activo'"
+        *ngIf="authService.isAdmin || producto.status !== 'Activo' || producto.stock === 0"
         class="producto-estado"
         [ngClass]="{
           'estado--proximamente': producto.status === 'Proximamente',
@@ -246,6 +246,23 @@
       </button>
       <button type="button" class="cart-modal__button" (click)="confirmAddToCart()">
         Añadir
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="cart-modal" *ngIf="productPendingDelete" (click)="cancelDeleteProduct()">
+  <div class="cart-modal__dialog" (click)="$event.stopPropagation()">
+    <p class="cart-modal__eyebrow">Eliminar producto</p>
+    <h2>{{ productPendingDelete.name }}</h2>
+    <p class="cart-modal__text">¿Seguro que quieres eliminar el producto?</p>
+
+    <div class="cart-modal__actions">
+      <button type="button" class="cart-modal__button cart-modal__button--ghost" (click)="cancelDeleteProduct()">
+        Cancelar
+      </button>
+      <button type="button" class="cart-modal__button cart-modal__button--danger" (click)="confirmDeleteProduct()">
+        Eliminar
       </button>
     </div>
   </div>

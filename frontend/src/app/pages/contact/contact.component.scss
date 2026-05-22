@@ -27,18 +27,22 @@
   }
 
   a {
-    color: #111;
+    color: #9b7330;
     font-weight: 800;
   }
 }
 
 .eyebrow {
   margin: 0 0 8px;
-  color: #8b6b2d;
+  color: #9b7330;
   font-size: 0.78rem;
   font-weight: 800;
   letter-spacing: 0.16em;
   text-transform: uppercase;
+}
+
+.contact-copy .eyebrow {
+  color: #9b7330;
 }
 
 .contact-form {

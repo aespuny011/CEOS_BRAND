@@ -1,4 +1,4 @@
-import { Component, HostListener, OnDestroy, OnInit } from '@angular/core';
+import { Component, ElementRef, HostListener, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 
 import { AuthService } from '../../services/auth.service';
@@ -10,7 +10,10 @@ import { CartService } from '../../services/cart.service';
   styleUrls: ['./navbar.component.scss'],
 })
 export class NavbarComponent implements OnInit, OnDestroy {
+  @ViewChild('accountMenu') private accountMenu?: ElementRef<HTMLDetailsElement>;
+
   isVisible = true;
+  showLogoutModal = false;
   lastScrollY = 0;
   private scrollTimeout: ReturnType<typeof setTimeout> | null = null;
   private readonly scrollSensitivity = 5;
@@ -63,7 +66,37 @@ export class NavbarComponent implements OnInit, OnDestroy {
     }, 10);
   }
 
-  cerrarSesion(): void {
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent): void {
+    const menu = this.accountMenu?.nativeElement;
+
+    if (!menu || !menu.open || menu.contains(event.target as Node)) {
+      return;
+    }
+
+    this.closeAccountMenu();
+  }
+
+  closeAccountMenu(): void {
+    const menu = this.accountMenu?.nativeElement;
+
+    if (menu) {
+      menu.open = false;
+    }
+  }
+
+  pedirConfirmacionCerrarSesion(): void {
+    this.closeAccountMenu();
+    this.showLogoutModal = true;
+  }
+
+  cancelarCerrarSesion(): void {
+    this.showLogoutModal = false;
+  }
+
+  confirmarCerrarSesion(): void {
+    this.showLogoutModal = false;
+
     this.authService.logout().subscribe({
       next: () => {
         this.cartService.refresh().subscribe();

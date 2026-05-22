@@ -16,6 +16,7 @@ export class ProductListComponent implements OnInit {
   loading = true;
   errorMsg: string | null = null;
   productPendingCart: Product | null = null;
+  productPendingDelete: Product | null = null;
   selectedCartSize = '';
   busqueda = '';
   ordenCatalogo: 'recientes' | 'precio-asc' | 'precio-desc' | 'nombre' = 'recientes';
@@ -217,13 +218,22 @@ export class ProductListComponent implements OnInit {
       return;
     }
 
-    const confirmed = confirm(`¿Seguro que quieres eliminar "${product.name}"?`);
-    if (!confirmed) {
+    this.productPendingDelete = product;
+  }
+
+  cancelDeleteProduct(): void {
+    this.productPendingDelete = null;
+  }
+
+  confirmDeleteProduct(): void {
+    if (!this.productPendingDelete) {
       return;
     }
 
-    this.productService.deleteProduct(product.id).subscribe(() => {
-      this.products = this.products.filter((item) => item.id !== product.id);
+    const productId = this.productPendingDelete.id;
+    this.productService.deleteProduct(productId).subscribe(() => {
+      this.products = this.products.filter((item) => item.id !== productId);
+      this.productPendingDelete = null;
     });
   }
 

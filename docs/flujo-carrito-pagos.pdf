@@ -1,0 +1,182 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [6 0 R 8 0 R 10 0 R 12 0 R 14 0 R] /Count 5 >>
+endobj
+3 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>
+endobj
+5 0 obj
+<< /Length 1258 >>
+stream
+0.07 0.07 0.08 rg 0 0 612 792 re f
+0.61 0.45 0.19 rg 0 744 612 48 re f
+BT /F2 15 Tf 54 705 Td (CEOS BRAND) Tj ET
+BT /F2 30 Tf 54 650 Td (Flujo de compra) Tj ET
+BT /F2 18 Tf 54 615 Td (Carrito, Stripe, stock, pedidos y emails) Tj ET
+0.95 0.93 0.90 rg
+BT /F2 11.4 Tf 54 562 Td (Resumen general:) Tj ET
+BT /F1 11.4 Tf 54 528 Td (1. El usuario anade productos al carrito.) Tj ET
+BT /F1 11.4 Tf 54 508 Td (2. El carrito guarda una intencion de compra, no reserva stock.) Tj ET
+BT /F1 11.4 Tf 54 488 Td (3. Al pagar, el backend crea una sesion de Stripe Checkout.) Tj ET
+BT /F1 11.4 Tf 54 468 Td (4. Stripe cobra al usuario y avisa al backend.) Tj ET
+BT /F1 11.4 Tf 54 448 Td (5. El backend comprueba el pago y revisa el stock real.) Tj ET
+BT /F1 11.4 Tf 54 428 Td (6. Si hay stock, descuenta unidades, crea el pedido y vacia el carrito.) Tj ET
+BT /F1 11.4 Tf 54 408 Td (7. Finalmente envia el email de confirmacion del pedido.) Tj ET
+BT /F1 11.4 Tf 54 374 Td (Idea clave: la compra no queda cerrada al anadir al carrito.) Tj ET
+BT /F1 11.4 Tf 54 354 Td (La compra queda cerrada cuando Stripe confirma el pago y el backend crea el pedido.) Tj ET
+0.61 0.45 0.19 rg 54 72 504 1 re f
+BT /F1 10 Tf 54 48 Td (Flujo de carrito, pagos, stock y emails - CEOS Brand) Tj ET
+endstream
+endobj
+6 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents 5 0 R >>
+endobj
+7 0 obj
+<< /Length 1471 >>
+stream
+0.07 0.07 0.08 rg 0 0 612 792 re f
+0.61 0.45 0.19 rg 0 744 612 48 re f
+BT /F2 15 Tf 54 705 Td (CEOS BRAND) Tj ET
+BT /F2 30 Tf 54 650 Td (Carrito y stock) Tj ET
+BT /F2 18 Tf 54 615 Td (Que ocurre antes de pagar) Tj ET
+0.95 0.93 0.90 rg
+BT /F2 11.4 Tf 54 562 Td (Frontend:) Tj ET
+BT /F1 11.4 Tf 54 542 Td (- El usuario elige producto, talla y cantidad.) Tj ET
+BT /F1 11.4 Tf 54 522 Td (- Angular llama al servicio de carrito.) Tj ET
+BT /F1 11.4 Tf 54 488 Td (Backend: CartService.add\(...\)) Tj ET
+BT /F1 11.4 Tf 54 468 Td (- Busca el producto y comprueba que sea comprable.) Tj ET
+BT /F1 11.4 Tf 54 448 Td (- Normaliza la talla: por ejemplo XL, 42, etc.) Tj ET
+BT /F1 11.4 Tf 54 428 Td (- Mira el stock de esa talla y limita la cantidad maxima.) Tj ET
+BT /F1 11.4 Tf 54 408 Td (- Guarda o actualiza la linea en cart_items.) Tj ET
+BT /F2 11.4 Tf 54 374 Td (Tabla cart_items:) Tj ET
+BT /F1 11.4 Tf 54 354 Td (- user_id: propietario del carrito.) Tj ET
+BT /F1 11.4 Tf 54 334 Td (- product_id: producto guardado.) Tj ET
+BT /F1 11.4 Tf 54 314 Td (- size: talla seleccionada.) Tj ET
+BT /F1 11.4 Tf 54 294 Td (- quantity: cantidad elegida.) Tj ET
+BT /F1 11.4 Tf 54 260 Td (Importante: aqui no se descuenta stock real. Dos usuarios pueden tener) Tj ET
+BT /F1 11.4 Tf 54 240 Td (la misma ultima unidad en sus carritos. Gana quien complete el pago primero.) Tj ET
+0.61 0.45 0.19 rg 54 72 504 1 re f
+BT /F1 10 Tf 54 48 Td (Flujo de carrito, pagos, stock y emails - CEOS Brand) Tj ET
+endstream
+endobj
+8 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents 7 0 R >>
+endobj
+9 0 obj
+<< /Length 1598 >>
+stream
+0.07 0.07 0.08 rg 0 0 612 792 re f
+0.61 0.45 0.19 rg 0 744 612 48 re f
+BT /F2 15 Tf 54 705 Td (CEOS BRAND) Tj ET
+BT /F2 30 Tf 54 650 Td (Pago con Stripe) Tj ET
+BT /F2 18 Tf 54 615 Td (Sesion Checkout y control anti-duplicados) Tj ET
+0.95 0.93 0.90 rg
+BT /F2 11.4 Tf 54 562 Td (Cuando el usuario pulsa "Proceder con el pago":) Tj ET
+BT /F1 11.4 Tf 54 528 Td (1. PaymentService.createCheckoutSession\(...\) obtiene el usuario actual.) Tj ET
+BT /F1 11.4 Tf 54 508 Td (2. Lee los productos de cart_items.) Tj ET
+BT /F1 11.4 Tf 54 488 Td (3. Crea line_items para Stripe con nombre, precio y cantidad.) Tj ET
+BT /F1 11.4 Tf 54 468 Td (4. Crea una sesion Stripe Checkout y devuelve la URL al frontend.) Tj ET
+BT /F1 11.4 Tf 54 448 Td (5. Guarda la sesion en stripe_checkout_sessions como PENDING.) Tj ET
+BT /F2 11.4 Tf 54 414 Td (Estados de stripe_checkout_sessions:) Tj ET
+BT /F1 11.4 Tf 54 394 Td (- PENDING: sesion creada, todavia sin procesar.) Tj ET
+BT /F1 11.4 Tf 54 374 Td (- PROCESSING: el backend esta creando el pedido.) Tj ET
+BT /F1 11.4 Tf 54 354 Td (- COMPLETED: pedido creado correctamente.) Tj ET
+BT /F1 11.4 Tf 54 334 Td (- FAILED: fallo durante el procesamiento.) Tj ET
+BT /F1 11.4 Tf 54 300 Td (Esta tabla es importante porque Stripe puede avisar por webhook y tambien) Tj ET
+BT /F1 11.4 Tf 54 280 Td (puede volver el usuario desde la pagina de exito. Si llegan dos avisos,) Tj ET
+BT /F1 11.4 Tf 54 260 Td (COMPLETED evita que se cree el mismo pedido dos veces.) Tj ET
+0.61 0.45 0.19 rg 54 72 504 1 re f
+BT /F1 10 Tf 54 48 Td (Flujo de carrito, pagos, stock y emails - CEOS Brand) Tj ET
+endstream
+endobj
+10 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents 9 0 R >>
+endobj
+11 0 obj
+<< /Length 1519 >>
+stream
+0.07 0.07 0.08 rg 0 0 612 792 re f
+0.61 0.45 0.19 rg 0 744 612 48 re f
+BT /F2 15 Tf 54 705 Td (CEOS BRAND) Tj ET
+BT /F2 30 Tf 54 650 Td (Pedido real) Tj ET
+BT /F2 18 Tf 54 615 Td (Confirmacion, descuento de stock y limpieza del carrito) Tj ET
+0.95 0.93 0.90 rg
+BT /F1 11.4 Tf 54 562 Td (Stripe confirma el pago por webhook o por la vuelta del usuario a la app.) Tj ET
+BT /F1 11.4 Tf 54 542 Td (PaymentService.fulfillPaidCheckout\(...\) comprueba que paymentStatus sea paid.) Tj ET
+BT /F1 11.4 Tf 54 508 Td (Despues llama a CartService.checkoutPaidCartForUser\(userId\).) Tj ET
+BT /F2 11.4 Tf 54 488 Td (Ese metodo hace el checkout real:) Tj ET
+BT /F1 11.4 Tf 54 454 Td (1. Lee el carrito actual del usuario.) Tj ET
+BT /F1 11.4 Tf 54 434 Td (2. Por cada item vuelve a cargar el producto desde base de datos.) Tj ET
+BT /F1 11.4 Tf 54 414 Td (3. Calcula el stock real de la talla.) Tj ET
+BT /F1 11.4 Tf 54 394 Td (4. Si ya no hay stock suficiente, lanza error y no crea pedido.) Tj ET
+BT /F1 11.4 Tf 54 374 Td (5. Si hay stock, descuenta unidades en products.size_stock_json y products.stock.) Tj ET
+BT /F1 11.4 Tf 54 354 Td (6. Crea la cabecera en orders.) Tj ET
+BT /F1 11.4 Tf 54 334 Td (7. Crea las lineas en order_items.) Tj ET
+BT /F1 11.4 Tf 54 314 Td (8. Vacia cart_items del usuario.) Tj ET
+BT /F1 11.4 Tf 54 280 Td (Por eso el stock se decide al pagar, no al meter el producto al carrito.) Tj ET
+0.61 0.45 0.19 rg 54 72 504 1 re f
+BT /F1 10 Tf 54 48 Td (Flujo de carrito, pagos, stock y emails - CEOS Brand) Tj ET
+endstream
+endobj
+12 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents 11 0 R >>
+endobj
+13 0 obj
+<< /Length 1642 >>
+stream
+0.07 0.07 0.08 rg 0 0 612 792 re f
+0.61 0.45 0.19 rg 0 744 612 48 re f
+BT /F2 15 Tf 54 705 Td (CEOS BRAND) Tj ET
+BT /F2 30 Tf 54 650 Td (Emails y puntos clave) Tj ET
+BT /F2 18 Tf 54 615 Td (Confirmacion, marketing y mejoras posibles) Tj ET
+0.95 0.93 0.90 rg
+BT /F2 11.4 Tf 54 562 Td (Email de pedido:) Tj ET
+BT /F1 11.4 Tf 54 542 Td (- Tras crear el pedido se llama a MarketingEmailService.sendOrderConfirmationEmail\(order\).) Tj ET
+BT /F1 11.4 Tf 54 522 Td (- El correo se genera en HTML y se envia con JavaMailSender.) Tj ET
+BT /F1 11.4 Tf 54 502 Td (- Incluye resumen de productos, cantidades, tallas y total pagado.) Tj ET
+BT /F2 11.4 Tf 54 468 Td (Emails de marketing:) Tj ET
+BT /F1 11.4 Tf 54 448 Td (- Bienvenida al registrarse.) Tj ET
+BT /F1 11.4 Tf 54 428 Td (- Producto anunciado como proximamente.) Tj ET
+BT /F1 11.4 Tf 54 408 Td (- Producto lanzado desde proximamente.) Tj ET
+BT /F1 11.4 Tf 54 388 Td (- Reposicion de stock.) Tj ET
+BT /F1 11.4 Tf 54 368 Td (- Se envian en segundo plano con @Async para no bloquear al usuario.) Tj ET
+BT /F2 11.4 Tf 54 334 Td (Punto delicado:) Tj ET
+BT /F1 11.4 Tf 54 314 Td (- Si dos pagos de la ultima unidad llegan exactamente a la vez, lo ideal) Tj ET
+BT /F1 11.4 Tf 54 294 Td (  seria bloquear la fila del producto o hacer un update atomico de stock.) Tj ET
+BT /F1 11.4 Tf 54 274 Td (- Para una tienda pequena el flujo actual es entendible, pero en produccion) Tj ET
+BT /F1 11.4 Tf 54 254 Td (  conviene reforzarlo con una operacion atomica o SELECT ... FOR UPDATE.) Tj ET
+0.61 0.45 0.19 rg 54 72 504 1 re f
+BT /F1 10 Tf 54 48 Td (Flujo de carrito, pagos, stock y emails - CEOS Brand) Tj ET
+endstream
+endobj
+14 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents 13 0 R >>
+endobj
+xref
+0 15
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000142 00000 n 
+0000000212 00000 n 
+0000000287 00000 n 
+0000001596 00000 n 
+0000001732 00000 n 
+0000003254 00000 n 
+0000003390 00000 n 
+0000005039 00000 n 
+0000005176 00000 n 
+0000006747 00000 n 
+0000006885 00000 n 
+0000008579 00000 n 
+trailer
+<< /Size 15 /Root 1 0 R >>
+startxref
+8717
+%%EOF

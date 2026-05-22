@@ -20,20 +20,20 @@
           Carrito <span class="count" *ngIf="cartService.totalItems > 0">{{ cartService.totalItems }}</span>
         </a>
         <a routerLink="/ayuda" routerLinkActive="active">Ayuda</a>
-        <a routerLink="/contacto" routerLinkActive="active">Contáctame</a>
+        <a routerLink="/contacto" routerLinkActive="active">Contáctanos</a>
       </ng-template>
 
-      <details class="account-menu">
+      <details class="account-menu" #accountMenu>
         <summary class="account-menu__button">
           {{ authService.currentUser!.name }}
         </summary>
 
         <div class="account-menu__panel">
           <ng-container *ngIf="!authService.isAdmin">
-            <a routerLink="/mi-perfil" routerLinkActive="active">Mi perfil</a>
-            <a routerLink="/mis-pedidos" routerLinkActive="active">Mis pedidos</a>
+            <a routerLink="/mi-perfil" routerLinkActive="active" (click)="closeAccountMenu()">Mi perfil</a>
+            <a routerLink="/mis-pedidos" routerLinkActive="active" (click)="closeAccountMenu()">Mis pedidos</a>
           </ng-container>
-          <button type="button" (click)="cerrarSesion()">Cerrar sesión</button>
+          <button type="button" (click)="pedirConfirmacionCerrarSesion()">Cerrar sesión</button>
         </div>
       </details>
     </ng-container>
@@ -49,3 +49,20 @@
     </ng-template>
   </nav>
 </header>
+
+<div class="logout-modal" *ngIf="showLogoutModal" (click)="cancelarCerrarSesion()">
+  <section class="logout-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="logout-modal-title" (click)="$event.stopPropagation()">
+    <p class="logout-modal__eyebrow">Cerrar sesion</p>
+    <h2 id="logout-modal-title">¿Seguro que quieres cerrar sesión?</h2>
+    <p>Volverás a la pantalla de inicio de sesión.</p>
+
+    <div class="logout-modal__actions">
+      <button type="button" class="logout-modal__button logout-modal__button--ghost" (click)="cancelarCerrarSesion()">
+        Cancelar
+      </button>
+      <button type="button" class="logout-modal__button" (click)="confirmarCerrarSesion()">
+        Cerrar sesión
+      </button>
+    </div>
+  </section>
+</div>

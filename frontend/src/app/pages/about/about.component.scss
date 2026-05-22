@@ -8,10 +8,14 @@
   padding: 72px 24px 56px;
   background: linear-gradient(135deg, #0d0d0f, #2c2c2f);
   color: #fff;
+  display: grid;
+  grid-template-columns: minmax(0, 860px) minmax(220px, 1fr);
+  align-items: center;
+  gap: 48px;
 
   h1,
   p {
-    width: min(100%, 860px);
+    max-width: 860px;
   }
 
   h1 {
@@ -26,15 +30,28 @@
     font-size: 1.1rem;
     line-height: 1.7;
   }
+
+  &__logo {
+    width: min(100%, 460px);
+    aspect-ratio: 1;
+    justify-self: center;
+    background: #f0c36b;
+    mask: url('/assets/img/ceos-logo.png') center / contain no-repeat;
+    -webkit-mask: url('/assets/img/ceos-logo.png') center / contain no-repeat;
+  }
 }
 
 .eyebrow {
   margin: 0 0 16px;
-  color: #f0c36b;
+  color: #9b7330;
   font-size: 0.78rem;
   font-weight: 800;
   letter-spacing: 0.18em;
   text-transform: uppercase;
+}
+
+.about-hero .eyebrow {
+  color: #9b7330;
 }
 
 .about-content {
@@ -88,7 +105,14 @@
 
 @media (max-width: 780px) {
   .about-hero {
+    grid-template-columns: 1fr;
+    gap: 32px;
     padding: 48px 18px;
+
+    &__logo {
+      width: min(78%, 300px);
+      justify-self: start;
+    }
   }
 
   .about-content {
