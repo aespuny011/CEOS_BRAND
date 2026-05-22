@@ -3,10 +3,13 @@ package com.ceos.brand.auth.auth.service;
 import com.ceos.brand.auth.auth.AuthSessionKeys;
 import com.ceos.brand.auth.auth.dto.AuthUserResponse;
 import com.ceos.brand.auth.auth.dto.LoginRequest;
+import com.ceos.brand.auth.auth.dto.PasswordUpdateRequest;
+import com.ceos.brand.auth.auth.dto.ProfileUpdateRequest;
 import com.ceos.brand.auth.auth.dto.RegisterRequest;
 import com.ceos.brand.auth.auth.model.User;
 import com.ceos.brand.auth.auth.repository.UserRepository;
 import com.ceos.brand.auth.common.ApiException;
+import com.ceos.brand.auth.email.service.MarketingEmailService;
 import jakarta.servlet.http.HttpSession;
 import java.util.Locale;
 import org.springframework.http.HttpStatus;
@@ -22,10 +25,12 @@ public class AuthService {
     private static final String ROLE_CUSTOMER = "CUSTOMER";
 
     private final UserRepository userRepository;
+    private final MarketingEmailService marketingEmailService;
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
-    public AuthService(UserRepository userRepository) {
+    public AuthService(UserRepository userRepository, MarketingEmailService marketingEmailService) {
         this.userRepository = userRepository;
+        this.marketingEmailService = marketingEmailService;
     }
 
     public AuthUserResponse register(RegisterRequest request, HttpSession session) {
@@ -47,6 +52,7 @@ public class AuthService {
         );
 
         storeUserInSession(session, user);
+        marketingEmailService.sendWelcomeEmail(user);
         return toResponse(user);
     }
 
@@ -54,10 +60,10 @@ public class AuthService {
         String normalizedEmail = normalizeEmail(request.email());
 
         User user = userRepository.findByEmail(normalizedEmail)
-            .orElseThrow(() -> new ApiException(HttpStatus.UNAUTHORIZED, "Credenciales incorrectas."));
+            .orElseThrow(() -> new ApiException(HttpStatus.UNAUTHORIZED, "Contraseña o email incorrectos."));
 
         if (!passwordEncoder.matches(request.password(), user.passwordHash())) {
-            throw new ApiException(HttpStatus.UNAUTHORIZED, "Credenciales incorrectas.");
+            throw new ApiException(HttpStatus.UNAUTHORIZED, "Contraseña o email incorrectos.");
         }
 
         storeUserInSession(session, user);
@@ -90,6 +96,38 @@ public class AuthService {
         if (session != null) {
             session.invalidate();
         }
+    }
+
+    public AuthUserResponse updateProfile(ProfileUpdateRequest request, HttpSession session) {
+        User currentUser = getCurrentUserEntity(session);
+        String normalizedName = normalizeName(request.name());
+        String normalizedEmail = normalizeEmail(request.email());
+
+        userRepository.findByEmail(normalizedEmail)
+            .filter(user -> !user.id().equals(currentUser.id()))
+            .ifPresent(user -> {
+                throw new ApiException(HttpStatus.CONFLICT, "Ya existe una cuenta con ese email.");
+            });
+
+        User updatedUser = userRepository.updateProfile(currentUser.id(), normalizedName, normalizedEmail);
+        storeUserInSession(session, updatedUser);
+        return toResponse(updatedUser);
+    }
+
+    public void updatePassword(PasswordUpdateRequest request, HttpSession session) {
+        User currentUser = getCurrentUserEntity(session);
+
+        if (!passwordEncoder.matches(request.currentPassword(), currentUser.passwordHash())) {
+            throw new ApiException(HttpStatus.UNAUTHORIZED, "La contraseña actual no es correcta.");
+        }
+
+        validatePasswordStrength(request.newPassword());
+
+        if (passwordEncoder.matches(request.newPassword(), currentUser.passwordHash())) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "La nueva contraseña debe ser distinta a la actual.");
+        }
+
+        userRepository.updatePassword(currentUser.id(), passwordEncoder.encode(request.newPassword()));
     }
 
     public boolean isAdmin(User user) {
@@ -146,5 +184,39 @@ public class AuthService {
 
     private String normalizeEmail(String value) {
         return value == null ? "" : value.trim().toLowerCase(Locale.ROOT);
+    }
+
+    private void validatePasswordStrength(String password) {
+        if (password == null || password.isBlank()) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "La nueva contraseña es obligatoria.");
+        }
+
+        if (password.length() < 8) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "La nueva contraseña debe tener al menos 8 caracteres.");
+        }
+
+        if (!password.chars().anyMatch(Character::isUpperCase)) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "La nueva contraseña debe incluir una mayúscula.");
+        }
+
+        if (!password.chars().anyMatch(Character::isLowerCase)) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "La nueva contraseña debe incluir una minúscula.");
+        }
+
+        if (!password.chars().anyMatch(Character::isDigit)) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "La nueva contraseña debe incluir un número.");
+        }
+
+        if (password.chars().anyMatch(Character::isWhitespace)) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "La nueva contraseña no puede contener espacios.");
+        }
+
+        boolean hasSpecial = password.chars().anyMatch(character ->
+            !Character.isLetterOrDigit(character) && !Character.isWhitespace(character)
+        );
+
+        if (!hasSpecial) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "La nueva contraseña debe incluir un símbolo.");
+        }
     }
 }

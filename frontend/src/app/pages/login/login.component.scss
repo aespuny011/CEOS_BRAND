@@ -60,6 +60,70 @@ input {
   color: #fff;
 }
 
+.password-field {
+  position: relative;
+
+  input {
+    width: 100%;
+    padding-right: 54px;
+  }
+}
+
+.password-toggle {
+  position: absolute;
+  top: 50%;
+  right: 8px;
+  width: 40px;
+  height: 40px;
+  margin: 0;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.68);
+  transform: translateY(-50%);
+}
+
+.password-toggle:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+.password-toggle__icon {
+  position: relative;
+  width: 22px;
+  height: 14px;
+  border: 2px solid currentColor;
+  border-radius: 50%;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+    transform: translate(-50%, -50%);
+  }
+}
+
+.password-toggle[aria-pressed='true'] .password-toggle__icon::after {
+  content: '';
+  position: absolute;
+  top: 5px;
+  left: -4px;
+  width: 28px;
+  height: 2px;
+  border-radius: 999px;
+  background: currentColor;
+  transform: rotate(-35deg);
+}
+
 button {
   margin-top: 8px;
   padding: 14px 18px;

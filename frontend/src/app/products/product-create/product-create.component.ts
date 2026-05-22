@@ -13,7 +13,7 @@ export class ProductCreateComponent {
   saving = false;
   errorMsg: string | null = null;
 
-  categories: Product['category'][] = ['Camiseta', 'Sudadera', 'Pantalón', 'Accesorio', 'Chaqueta'];
+  categories: Product['category'][] = ['Camiseta', 'Sudadera', 'Pantalón', 'Gorra'];
 
   form = this.fb.group({
     name: ['', [Validators.required, Validators.minLength(3)]],

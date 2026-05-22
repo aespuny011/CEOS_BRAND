@@ -1,0 +1,38 @@
+<section class="orders-page">
+  <div class="orders-hero">
+    <p>Mi cuenta</p>
+    <h1>Mis pedidos</h1>
+  </div>
+
+  <p class="orders-state" *ngIf="loading">Cargando pedidos...</p>
+  <p class="orders-state orders-state--error" *ngIf="errorMsg">{{ errorMsg }}</p>
+
+  <div class="orders-empty" *ngIf="!loading && !errorMsg && orders.length === 0">
+    <h2>Aún no tienes pedidos</h2>
+    <p>Cuando completes una compra, aparecerá aquí.</p>
+    <a routerLink="/productos">Ir al catálogo</a>
+  </div>
+
+  <div class="orders-list" *ngIf="orders.length">
+    <article class="order-card" *ngFor="let order of orders">
+      <header>
+        <div>
+          <span>Pedido #{{ order.id }}</span>
+          <strong>{{ order.total | currency:'EUR':'symbol':'1.2-2' }}</strong>
+        </div>
+        <p>{{ order.status }} · {{ order.createdAt | date:'dd/MM/yyyy HH:mm' }}</p>
+      </header>
+
+      <div class="order-items">
+        <div class="order-item" *ngFor="let item of order.items">
+          <img [src]="item.productImageUrl" [alt]="item.productName" />
+          <div>
+            <h3>{{ item.productName }}</h3>
+            <p>{{ item.productCategory }}<span *ngIf="item.productSize"> · Talla {{ item.productSize }}</span> · x{{ item.quantity }}</p>
+          </div>
+          <strong>{{ item.lineTotal | currency:'EUR':'symbol':'1.2-2' }}</strong>
+        </div>
+      </div>
+    </article>
+  </div>
+</section>

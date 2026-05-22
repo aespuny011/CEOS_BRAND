@@ -5,11 +5,16 @@ import { BehaviorSubject, Observable, catchError, map, of, tap } from 'rxjs';
 import { Cart, CartItem } from '../models/cart-item.model';
 import { Product } from '../models/product.model';
 
+interface CheckoutSessionResponse {
+  url: string;
+}
+
 @Injectable({
   providedIn: 'root',
 })
 export class CartService {
   private readonly apiUrl = 'http://localhost:8080/api/cart';
+  private readonly paymentsApiUrl = 'http://localhost:8080/api/payments';
   private readonly emptyCart: Cart = { items: [], totalItems: 0, totalPrice: 0 };
   private readonly cartSubject = new BehaviorSubject<Cart>(this.emptyCart);
 
@@ -44,7 +49,7 @@ export class CartService {
     );
   }
 
-  addProduct(product: Product, quantity = 1): void {
+  addProduct(product: Product, quantity = 1, size = ''): void {
     if (!product.purchasable || quantity <= 0) {
       return;
     }
@@ -52,13 +57,13 @@ export class CartService {
     this.http
       .post<Cart>(
         `${this.apiUrl}/items`,
-        { productId: product.id, quantity },
+        { productId: product.id, quantity, size },
         { withCredentials: true }
       )
       .subscribe((cart) => this.cartSubject.next(cart));
   }
 
-  updateQuantity(productId: number, quantity: number): void {
+  updateQuantity(productId: number, quantity: number, size = ''): void {
     if (!Number.isFinite(quantity)) {
       return;
     }
@@ -66,15 +71,18 @@ export class CartService {
     this.http
       .put<Cart>(
         `${this.apiUrl}/items/${productId}`,
-        { quantity: Math.max(1, quantity) },
+        { quantity: Math.max(1, quantity), size },
         { withCredentials: true }
       )
       .subscribe((cart) => this.cartSubject.next(cart));
   }
 
-  removeProduct(productId: number): void {
+  removeProduct(productId: number, size = ''): void {
     this.http
-      .delete<Cart>(`${this.apiUrl}/items/${productId}`, { withCredentials: true })
+      .delete<Cart>(`${this.apiUrl}/items/${productId}`, {
+        params: size ? { size } : {},
+        withCredentials: true,
+      })
       .subscribe((cart) => this.cartSubject.next(cart));
   }
 
@@ -87,6 +95,24 @@ export class CartService {
   checkout(): Observable<Cart> {
     return this.http
       .post<Cart>(`${this.apiUrl}/checkout`, {}, { withCredentials: true })
+      .pipe(tap((cart) => this.cartSubject.next(cart)));
+  }
+
+  createCheckoutSession(): Observable<CheckoutSessionResponse> {
+    return this.http.post<CheckoutSessionResponse>(
+      `${this.paymentsApiUrl}/checkout-session`,
+      {},
+      { withCredentials: true }
+    );
+  }
+
+  confirmStripePayment(sessionId: string): Observable<Cart> {
+    return this.http
+      .post<Cart>(
+        `${this.paymentsApiUrl}/confirm`,
+        { sessionId },
+        { withCredentials: true }
+      )
       .pipe(tap((cart) => this.cartSubject.next(cart)));
   }
 }

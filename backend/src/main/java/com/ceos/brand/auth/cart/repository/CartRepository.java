@@ -18,6 +18,7 @@ public class CartRepository {
         rs.getString("image_url"),
         rs.getString("category"),
         rs.getString("status"),
+        rs.getString("size"),
         rs.getInt("quantity"),
         rs.getInt("stock")
     );
@@ -29,7 +30,7 @@ public class CartRepository {
     public List<CartItem> findByUserId(Long userId) {
         return jdbcTemplate.query(
             """
-            SELECT ci.product_id, ci.quantity, p.name, p.price, p.image_url, p.category, p.status, p.stock
+            SELECT ci.product_id, ci.size, ci.quantity, p.name, p.price, p.image_url, p.category, p.status, p.stock
             FROM cart_items ci
             INNER JOIN products p ON p.id = ci.product_id
             WHERE ci.user_id = ?
@@ -40,31 +41,33 @@ public class CartRepository {
         );
     }
 
-    public int findQuantity(Long userId, Long productId) {
+    public int findQuantity(Long userId, Long productId, String size) {
         Integer quantity = jdbcTemplate.query(
-            "SELECT quantity FROM cart_items WHERE user_id = ? AND product_id = ?",
+            "SELECT quantity FROM cart_items WHERE user_id = ? AND product_id = ? AND size = ?",
             rs -> rs.next() ? rs.getInt("quantity") : null,
             userId,
-            productId
+            productId,
+            size
         );
         return quantity == null ? 0 : quantity;
     }
 
-    public void upsert(Long userId, Long productId, Integer quantity) {
+    public void upsert(Long userId, Long productId, Integer quantity, String size) {
         jdbcTemplate.update(
             """
-            INSERT INTO cart_items (user_id, product_id, quantity)
-            VALUES (?, ?, ?)
+            INSERT INTO cart_items (user_id, product_id, size, quantity)
+            VALUES (?, ?, ?, ?)
             ON DUPLICATE KEY UPDATE quantity = VALUES(quantity)
             """,
             userId,
             productId,
+            size,
             quantity
         );
     }
 
-    public void remove(Long userId, Long productId) {
-        jdbcTemplate.update("DELETE FROM cart_items WHERE user_id = ? AND product_id = ?", userId, productId);
+    public void remove(Long userId, Long productId, String size) {
+        jdbcTemplate.update("DELETE FROM cart_items WHERE user_id = ? AND product_id = ? AND size = ?", userId, productId, size);
     }
 
     public void clear(Long userId) {

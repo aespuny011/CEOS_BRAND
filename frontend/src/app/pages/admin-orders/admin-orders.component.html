@@ -1,0 +1,48 @@
+<section class="orders-page">
+  <div class="orders-hero">
+    <p>Administración</p>
+    <h1>Pedidos de clientes</h1>
+  </div>
+
+  <p class="orders-state" *ngIf="loading">Cargando pedidos...</p>
+  <p class="orders-state orders-state--error" *ngIf="errorMsg">{{ errorMsg }}</p>
+
+  <div class="orders-empty" *ngIf="!loading && !errorMsg && orders.length === 0">
+    <h2>Aún no hay pedidos</h2>
+    <p>Cuando un cliente compre, aparecerá aquí.</p>
+  </div>
+
+  <div class="orders-list" *ngIf="orders.length">
+    <article class="order-card" *ngFor="let order of orders">
+      <header>
+        <div class="order-card__customer">
+          <span>Pedido #{{ order.id }}</span>
+          <p>Cliente</p>
+          <strong>{{ order.customerName || order.customerEmail || 'Cliente no identificado' }}</strong>
+          <small *ngIf="order.customerEmail">{{ order.customerEmail }}</small>
+          <small *ngIf="!order.customerEmail && order.userId">ID usuario: {{ order.userId }}</small>
+        </div>
+
+        <div class="order-card__meta">
+          <strong>{{ order.total | currency:'EUR':'symbol':'1.2-2' }}</strong>
+          <p>{{ order.status }} · {{ order.createdAt | date:'dd/MM/yyyy HH:mm' }}</p>
+        </div>
+      </header>
+
+      <div class="order-items">
+        <div class="order-item" *ngFor="let item of order.items">
+          <img [src]="item.productImageUrl" [alt]="item.productName" />
+          <div>
+            <h3>{{ item.productName }}</h3>
+            <p class="order-item__category">{{ item.productCategory }}</p>
+            <p class="order-item__details">
+              <span>Talla {{ item.productSize || 'no registrada' }}</span>
+              <span>x{{ item.quantity }}</span>
+            </p>
+          </div>
+          <strong>{{ item.lineTotal | currency:'EUR':'symbol':'1.2-2' }}</strong>
+        </div>
+      </div>
+    </article>
+  </div>
+</section>

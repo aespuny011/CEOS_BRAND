@@ -4,12 +4,10 @@
     <p class="editar__sub">Modifica los datos del producto y guarda los cambios.</p>
   </div>
 
-  <!-- Mensaje de éxito -->
   <div class="mensaje-exito" *ngIf="mostrarMensajeExito">
     <p>✅ Cambios guardados correctamente.</p>
   </div>
 
-  <!-- Mensajes de error o carga -->
   <p *ngIf="loading" class="estado">Cargando…</p>
   <p *ngIf="!loading && errorMsg" class="estado estado--error">
     {{ errorMsg }}
@@ -18,21 +16,18 @@
     {{ saveErrorMsg }}
   </p>
 
-  <!-- Formulario de edición -->
   <form
     *ngIf="!loading && !errorMsg"
     class="editar__formulario"
     [formGroup]="formulario"
     (ngSubmit)="guardar()"
   >
-    <!-- Nombre -->
     <div class="campo">
       <label for="name">Nombre</label>
       <input id="name" type="text" formControlName="name" placeholder="Ej: Sudadera CEØS" />
-      <small class="error" *ngIf="tocado('name')">Nombre obligatorio (min. 2 caracteres).</small>
+      <small class="error" *ngIf="tocado('name')">Nombre obligatorio (mín. 2 caracteres).</small>
     </div>
 
-    <!-- Categoría -->
     <div class="campo">
       <label for="category">Categoría</label>
       <select id="category" formControlName="category">
@@ -42,7 +37,6 @@
       <small class="error" *ngIf="tocado('category')">Categoría obligatoria.</small>
     </div>
 
-    <!-- Precio -->
     <div class="campo">
       <label for="price">Precio (€)</label>
       <input
@@ -56,7 +50,6 @@
       <small class="error" *ngIf="tocado('price')">Precio obligatorio y mayor que 0.</small>
     </div>
 
-    <!-- Estado -->
     <div class="campo">
       <label for="status">Estado</label>
       <select id="status" formControlName="status">
@@ -65,7 +58,6 @@
       <small class="error" *ngIf="tocado('status')">Estado obligatorio.</small>
     </div>
 
-    <!-- Stock -->
     <div class="campo">
       <label for="stock">Stock</label>
       <input
@@ -80,9 +72,24 @@
       <small class="error" *ngIf="tocado('stock')">Stock obligatorio (mínimo 0).</small>
     </div>
 
-    <!-- Imagen -->
+    <div class="campo" *ngIf="tallasActuales.length">
+      <label>Stock por talla</label>
+      <div class="stock-tallas">
+        <label *ngFor="let talla of tallasActuales">
+          <span>{{ talla }}</span>
+          <input
+            type="number"
+            min="0"
+            step="1"
+            [value]="stockTalla(talla)"
+            (input)="cambiarStockTalla(talla, $event)"
+            (wheel)="evitarCambioConRueda($event)" />
+        </label>
+      </div>
+    </div>
+
     <div class="campo">
-      <label>Imagen Principal *</label>
+      <label>Imagen principal *</label>
 
       <div class="imagen">
         <input
@@ -100,21 +107,20 @@
       <div class="imagen-preview-container" *ngIf="imagenActual">
         <h4>Imagen principal:</h4>
         <div class="imagen-preview-item">
-        <img [src]="imagenActual" alt="Vista previa" />
+          <img [src]="imagenActual" alt="Vista previa" />
           <button
             type="button"
             class="boton boton--pequeno boton--peligro"
             (click)="quitarImagen(); imagenPrincipalInput.value = ''"
           >
-            x
+            ×
           </button>
         </div>
       </div>
     </div>
 
-    <!-- Imagenes secundarias -->
     <div class="campo">
-      <label>Imagenes Adicionales</label>
+      <label>Imágenes adicionales</label>
 
       <input
         #imagenesAdicionalesInput
@@ -125,26 +131,24 @@
       />
 
       <div class="imagenes-preview-container" *ngIf="imagenesAdicionales.length">
-        <h4>Imagenes adicionales ({{ imagenesAdicionales.length }}):</h4>
+        <h4>Imágenes adicionales ({{ imagenesAdicionales.length }}):</h4>
         <div class="imagenes-preview">
-        <div class="imagen-preview-item" *ngFor="let img of imagenesAdicionales; let i = index">
-          <img [src]="img" alt="Imagen secundaria {{ i + 1 }}" />
-          <button
-            type="button"
-            class="boton boton--pequeno boton--peligro"
-            (click)="quitarImagenAdicional(i, imagenesAdicionalesInput)"
-          >
-            x
-          </button>
-        </div>
+          <div class="imagen-preview-item" *ngFor="let img of imagenesAdicionales; let i = index">
+            <img [src]="img" alt="Imagen secundaria {{ i + 1 }}" />
+            <button
+              type="button"
+              class="boton boton--pequeno boton--peligro"
+              (click)="quitarImagenAdicional(i, imagenesAdicionalesInput)"
+            >
+              ×
+            </button>
+          </div>
         </div>
       </div>
-
     </div>
 
-    <!-- Descripción -->
     <div *ngIf="todasLasImagenes.length" class="campo vista-previa-completa">
-      <h3>Todas las imagenes ({{ todasLasImagenes.length }}):</h3>
+      <h3>Todas las imágenes ({{ todasLasImagenes.length }}):</h3>
       <div class="imagenes-preview">
         <div class="imagen-preview-item" *ngFor="let img of todasLasImagenes; let i = index">
           <img [src]="img" alt="Producto imagen {{ i + 1 }}" />
@@ -156,7 +160,7 @@
         class="boton boton--secundario"
         (click)="quitarTodasLasImagenes(imagenPrincipalInput, imagenesAdicionalesInput)"
       >
-        Quitar todas las imagenes
+        Quitar todas las imágenes
       </button>
     </div>
 
@@ -168,10 +172,9 @@
         formControlName="description"
         placeholder="Describe el producto..."
       ></textarea>
-      <small class="error" *ngIf="tocado('description')">Descripción obligatoria (min. 10 caracteres).</small>
+      <small class="error" *ngIf="tocado('description')">Descripción obligatoria (mín. 10 caracteres).</small>
     </div>
 
-    <!-- Botón de acción -->
     <div class="acciones">
       <button class="boton boton--principal" type="submit" [disabled]="guardando">
         {{ guardando ? 'Guardando…' : 'Guardar cambios' }}

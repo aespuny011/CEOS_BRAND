@@ -42,6 +42,7 @@ public class StandaloneAuthServer {
         HttpServer server = HttpServer.create(new InetSocketAddress(PORT), 0);
         server.createContext("/api/auth/register", exchange -> handle(exchange, StandaloneAuthServer::register));
         server.createContext("/api/auth/login", exchange -> handle(exchange, StandaloneAuthServer::login));
+        server.createContext("/api/auth/me/password", exchange -> handle(exchange, StandaloneAuthServer::updatePassword));
         server.createContext("/api/auth/me", exchange -> handle(exchange, StandaloneAuthServer::me));
         server.createContext("/api/auth/logout", exchange -> handle(exchange, StandaloneAuthServer::logout));
         server.setExecutor(Executors.newCachedThreadPool());
@@ -86,7 +87,7 @@ public class StandaloneAuthServer {
         }
 
         if (password.length() < 6) {
-            throw new ApiError(400, "La contrasena debe tener al menos 6 caracteres.");
+            throw new ApiError(400, "La contraseña debe tener al menos 6 caracteres.");
         }
 
         try (Connection connection = createConnection()) {
@@ -109,13 +110,13 @@ public class StandaloneAuthServer {
         String password = payload.getOrDefault("password", "");
 
         if (email.isBlank() || password.isBlank()) {
-            throw new ApiError(400, "Email y contrasena son obligatorios.");
+            throw new ApiError(400, "Email y contraseña son obligatorios.");
         }
 
         try (Connection connection = createConnection()) {
             UserRecord user = findUserByEmail(connection, email);
             if (user == null || !PASSWORD_ENCODER.matches(password, user.passwordHash())) {
-                throw new ApiError(401, "Credenciales incorrectas.");
+                throw new ApiError(401, "Contraseña o email incorrectos.");
             }
 
             SessionUser sessionUser = new SessionUser(user.id(), user.name(), user.email());
@@ -129,6 +130,40 @@ public class StandaloneAuthServer {
 
         SessionUser user = requireSession(exchange);
         sendJson(exchange, 200, user.toJson());
+    }
+
+    private static void updatePassword(HttpExchange exchange) throws IOException, SQLException {
+        ensureMethod(exchange, "PUT");
+
+        SessionUser sessionUser = requireSession(exchange);
+        Map<String, String> payload = readJsonBody(exchange);
+        String currentPassword = payload.getOrDefault("currentPassword", "");
+        String newPassword = payload.getOrDefault("newPassword", "");
+
+        if (currentPassword.isBlank() || newPassword.isBlank()) {
+            throw new ApiError(400, "La contraseña actual y la nueva contraseña son obligatorias.");
+        }
+
+        validatePasswordStrength(newPassword);
+
+        try (Connection connection = createConnection()) {
+            UserRecord user = findUserById(connection, sessionUser.id());
+
+            if (user == null) {
+                throw new ApiError(401, "No hay sesion activa.");
+            }
+
+            if (!PASSWORD_ENCODER.matches(currentPassword, user.passwordHash())) {
+                throw new ApiError(401, "La contraseña actual no es correcta.");
+            }
+
+            if (PASSWORD_ENCODER.matches(newPassword, user.passwordHash())) {
+                throw new ApiError(400, "La nueva contraseña debe ser distinta a la actual.");
+            }
+
+            updateUserPassword(connection, user.id(), PASSWORD_ENCODER.encode(newPassword));
+            sendJson(exchange, 200, "{\"message\":\"Contraseña actualizada correctamente.\"}");
+        }
     }
 
     private static void logout(HttpExchange exchange) throws IOException {
@@ -326,6 +361,26 @@ public class StandaloneAuthServer {
         }
     }
 
+    private static UserRecord findUserById(Connection connection, long id) throws SQLException {
+        try (PreparedStatement statement = connection.prepareStatement(
+            "SELECT id, name, email, password_hash FROM users WHERE id = ?"
+        )) {
+            statement.setLong(1, id);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (!resultSet.next()) {
+                    return null;
+                }
+
+                return new UserRecord(
+                    resultSet.getLong("id"),
+                    resultSet.getString("name"),
+                    resultSet.getString("email"),
+                    resultSet.getString("password_hash")
+                );
+            }
+        }
+    }
+
     private static long insertUser(Connection connection, String name, String email, String passwordHash)
         throws SQLException {
         try (PreparedStatement statement = connection.prepareStatement(
@@ -347,6 +402,16 @@ public class StandaloneAuthServer {
         throw new SQLException("No se pudo obtener el id del usuario creado.");
     }
 
+    private static void updateUserPassword(Connection connection, long id, String passwordHash) throws SQLException {
+        try (PreparedStatement statement = connection.prepareStatement(
+            "UPDATE users SET password_hash = ? WHERE id = ?"
+        )) {
+            statement.setString(1, passwordHash);
+            statement.setLong(2, id);
+            statement.executeUpdate();
+        }
+    }
+
     private static void applyCorsHeaders(HttpExchange exchange) {
         Headers headers = exchange.getResponseHeaders();
         String origin = exchange.getRequestHeaders().getFirst("Origin");
@@ -357,7 +422,7 @@ public class StandaloneAuthServer {
 
         headers.set("Vary", "Origin");
         headers.set("Access-Control-Allow-Credentials", "true");
-        headers.set("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+        headers.set("Access-Control-Allow-Methods", "GET, POST, PUT, OPTIONS");
         headers.set("Access-Control-Allow-Headers", "Content-Type");
         headers.set("Content-Type", "application/json; charset=utf-8");
     }
@@ -374,6 +439,36 @@ public class StandaloneAuthServer {
 
     private static String normalizeEmail(String value) {
         return value == null ? "" : value.trim().toLowerCase(Locale.ROOT);
+    }
+
+    private static void validatePasswordStrength(String password) {
+        if (password.length() < 8) {
+            throw new ApiError(400, "La nueva contraseña debe tener al menos 8 caracteres.");
+        }
+
+        if (!password.chars().anyMatch(Character::isUpperCase)) {
+            throw new ApiError(400, "La nueva contraseña debe incluir una mayúscula.");
+        }
+
+        if (!password.chars().anyMatch(Character::isLowerCase)) {
+            throw new ApiError(400, "La nueva contraseña debe incluir una minúscula.");
+        }
+
+        if (!password.chars().anyMatch(Character::isDigit)) {
+            throw new ApiError(400, "La nueva contraseña debe incluir un número.");
+        }
+
+        if (password.chars().anyMatch(Character::isWhitespace)) {
+            throw new ApiError(400, "La nueva contraseña no puede contener espacios.");
+        }
+
+        boolean hasSpecial = password.chars().anyMatch(character ->
+            !Character.isLetterOrDigit(character) && !Character.isWhitespace(character)
+        );
+
+        if (!hasSpecial) {
+            throw new ApiError(400, "La nueva contraseña debe incluir un símbolo.");
+        }
     }
 
     private static String escapeJson(String value) {

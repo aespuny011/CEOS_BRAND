@@ -9,6 +9,7 @@ public record CartItem(
     String imageUrl,
     String category,
     String status,
+    String size,
     Integer quantity,
     Integer stock
 ) {

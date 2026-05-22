@@ -1,0 +1,122 @@
+.about-page {
+  min-height: calc(100vh - 73px);
+  background: #f4f4f4;
+  color: #101012;
+}
+
+.about-hero {
+  padding: 72px 24px 56px;
+  background: linear-gradient(135deg, #0d0d0f, #2c2c2f);
+  color: #fff;
+  display: grid;
+  grid-template-columns: minmax(0, 860px) minmax(220px, 1fr);
+  align-items: center;
+  gap: 48px;
+
+  h1,
+  p {
+    max-width: 860px;
+  }
+
+  h1 {
+    margin: 0 0 18px;
+    font-size: clamp(2.2rem, 5vw, 4.8rem);
+    line-height: 1.02;
+  }
+
+  p {
+    margin: 0;
+    color: rgba(255, 255, 255, 0.76);
+    font-size: 1.1rem;
+    line-height: 1.7;
+  }
+
+  &__logo {
+    width: min(100%, 460px);
+    aspect-ratio: 1;
+    justify-self: center;
+    background: #f0c36b;
+    mask: url('/assets/img/ceos-logo.png') center / contain no-repeat;
+    -webkit-mask: url('/assets/img/ceos-logo.png') center / contain no-repeat;
+  }
+}
+
+.eyebrow {
+  margin: 0 0 16px;
+  color: #9b7330;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.about-hero .eyebrow {
+  color: #9b7330;
+}
+
+.about-content {
+  width: min(100%, 1120px);
+  margin: 0 auto;
+  padding: 48px 24px;
+  display: grid;
+  grid-template-columns: minmax(280px, 0.9fr) minmax(320px, 1.1fr);
+  gap: 40px;
+}
+
+.about-story {
+  h2 {
+    margin: 0 0 16px;
+    font-size: 2rem;
+  }
+
+  p {
+    color: #4c4c52;
+    line-height: 1.75;
+  }
+}
+
+.about-values {
+  display: grid;
+  gap: 16px;
+}
+
+.about-values article {
+  padding: 22px;
+  border-radius: 8px;
+  background: #fff;
+  border: 1px solid #e7e7e7;
+
+  span {
+    color: #9b7330;
+    font-weight: 900;
+  }
+
+  h3 {
+    margin: 10px 0 8px;
+    font-size: 1.25rem;
+  }
+
+  p {
+    margin: 0;
+    color: #626268;
+    line-height: 1.6;
+  }
+}
+
+@media (max-width: 780px) {
+  .about-hero {
+    grid-template-columns: 1fr;
+    gap: 32px;
+    padding: 48px 18px;
+
+    &__logo {
+      width: min(78%, 300px);
+      justify-self: start;
+    }
+  }
+
+  .about-content {
+    grid-template-columns: 1fr;
+    padding: 36px 18px;
+  }
+}

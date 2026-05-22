@@ -2,6 +2,8 @@ package com.ceos.brand.auth.auth.controller;
 
 import com.ceos.brand.auth.auth.dto.AuthUserResponse;
 import com.ceos.brand.auth.auth.dto.LoginRequest;
+import com.ceos.brand.auth.auth.dto.PasswordUpdateRequest;
+import com.ceos.brand.auth.auth.dto.ProfileUpdateRequest;
 import com.ceos.brand.auth.auth.dto.RegisterRequest;
 import com.ceos.brand.auth.auth.service.AuthService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -11,6 +13,7 @@ import java.util.Map;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -54,5 +57,22 @@ public class AuthController {
         HttpSession session = httpRequest.getSession(false);
         authService.logout(session);
         return Map.of("message", "Sesion cerrada correctamente.");
+    }
+
+    @PutMapping("/me")
+    public AuthUserResponse updateProfile(
+        @Valid @RequestBody ProfileUpdateRequest request,
+        HttpServletRequest httpRequest
+    ) {
+        return authService.updateProfile(request, httpRequest.getSession(false));
+    }
+
+    @PutMapping("/me/password")
+    public Map<String, String> updatePassword(
+        @Valid @RequestBody PasswordUpdateRequest request,
+        HttpServletRequest httpRequest
+    ) {
+        authService.updatePassword(request, httpRequest.getSession(false));
+        return Map.of("message", "Contraseña actualizada correctamente.");
     }
 }

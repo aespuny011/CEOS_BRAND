@@ -18,8 +18,8 @@
 
     <div *ngIf="!hasItems" class="cart-empty">
       <h2>No hay productos en el carrito</h2>
-      <p>Anade productos desde el catalogo para empezar a comprar.</p>
-      <a routerLink="/productos" class="cart-link">Ir al catalogo</a>
+      <p>Añade productos desde el catálogo para empezar a comprar.</p>
+      <a routerLink="/productos" class="cart-link">Ir al catálogo</a>
     </div>
 
     <div *ngIf="hasItems" class="cart-layout">
@@ -30,6 +30,7 @@
           <div class="cart-item__info">
             <p class="cart-item__category">{{ item.category }}</p>
             <h2>{{ item.name }}</h2>
+            <p class="cart-item__size" *ngIf="item.size">Talla {{ item.size }}</p>
             <p class="cart-item__price">{{ item.price | currency:'EUR':'symbol':'1.2-2' }}</p>
           </div>
 
@@ -41,14 +42,14 @@
               min="1"
               [max]="item.maxStock"
               [value]="item.quantity"
-              (change)="changeQuantity(item.productId, $event)" />
+              (change)="changeQuantity(item.productId, item.size, $event)" />
           </label>
 
           <div class="cart-item__total">
             {{ item.lineTotal | currency:'EUR':'symbol':'1.2-2' }}
           </div>
 
-          <button type="button" class="cart-item__remove" (click)="removeProduct(item.productId)">
+          <button type="button" class="cart-item__remove" (click)="removeProduct(item.productId, item.size)">
             Quitar
           </button>
         </article>
@@ -64,86 +65,21 @@
           <span>Total</span>
           <strong>{{ totalPrice | currency:'EUR':'symbol':'1.2-2' }}</strong>
         </div>
-        <button type="button" class="cart-summary__button" (click)="openPayment()">
-          Pagar con tarjeta
+        <button type="button" class="cart-summary__button" (click)="startStripeCheckout()" [disabled]="isProcessingPayment">
+          {{ isProcessingPayment ? 'Procesando pago...' : 'Proceder con el pago' }}
         </button>
+        <p *ngIf="paymentError" class="cart-summary__error">{{ paymentError }}</p>
       </aside>
-    </div>
-
-    <div class="payment-modal" *ngIf="paymentOpen" (click)="closePayment()">
-      <form class="payment-modal__dialog" autocomplete="off" [formGroup]="paymentForm" (ngSubmit)="submitPayment()" (click)="$event.stopPropagation()">
-        <div class="payment-modal__header">
-          <div>
-            <p class="payment-modal__eyebrow">Pago</p>
-            <h2>Tarjeta bancaria</h2>
-          </div>
-          <button type="button" class="payment-modal__close" (click)="closePayment()" [disabled]="isProcessingPayment">
-            X
-          </button>
-        </div>
-
-        <div class="payment-card" aria-hidden="true">
-          <span>CEOS BRAND</span>
-          <strong>{{ paymentForm.controls.cardNumber.value || '0000 0000 0000 0000' }}</strong>
-          <small>{{ paymentForm.controls.cardName.value || 'NOMBRE DEL TITULAR' }}</small>
-        </div>
-
-        <label class="payment-field">
-          <span>Titular</span>
-          <input type="text" formControlName="cardName" autocomplete="off" placeholder="Nombre y apellidos" />
-          <small *ngIf="isInvalid('cardName')">Introduce el titular de la tarjeta.</small>
-        </label>
-
-        <label class="payment-field">
-          <span>Numero de tarjeta</span>
-          <input
-            type="text"
-            inputmode="numeric"
-            formControlName="cardNumber"
-            autocomplete="new-password"
-            maxlength="19"
-            placeholder="1234 5678 9012 3456"
-            (input)="formatCardNumber()" />
-          <small *ngIf="isInvalid('cardNumber')">Usa 16 digitos.</small>
-        </label>
-
-        <div class="payment-modal__grid">
-          <label class="payment-field">
-            <span>Caducidad</span>
-            <input
-              type="text"
-              inputmode="numeric"
-              formControlName="cardExpiry"
-              autocomplete="new-password"
-              maxlength="5"
-              placeholder="MM/AA"
-              (input)="formatExpiry()" />
-            <small *ngIf="isInvalid('cardExpiry')">Formato MM/AA.</small>
-          </label>
-
-          <label class="payment-field">
-            <span>CVV</span>
-            <input type="password" inputmode="numeric" formControlName="cardCvv" autocomplete="new-password" maxlength="4" placeholder="123" />
-            <small *ngIf="isInvalid('cardCvv')">3 o 4 digitos.</small>
-          </label>
-        </div>
-
-        <p *ngIf="paymentError" class="payment-modal__error">{{ paymentError }}</p>
-
-        <button type="submit" class="payment-modal__submit" [disabled]="isProcessingPayment">
-          {{ isProcessingPayment ? 'Procesando pago...' : ('Pagar ' + (totalPrice | currency:'EUR':'symbol':'1.2-2')) }}
-        </button>
-      </form>
     </div>
   </ng-container>
 
   <ng-template #purchaseSuccess>
     <div class="purchase-success">
-      <div class="purchase-success__icon">✓</div>
+      <div class="purchase-success__icon">&#10003;</div>
       <p class="purchase-success__eyebrow">Pago completado</p>
       <h1>Gracias por tu compra</h1>
       <p>{{ checkoutMessage }}</p>
-      <a routerLink="/productos" class="purchase-success__button">Volver al catalogo</a>
+      <a routerLink="/productos" class="purchase-success__button">Volver al catálogo</a>
     </div>
   </ng-template>
 </section>

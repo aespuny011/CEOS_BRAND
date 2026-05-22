@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -35,7 +36,7 @@ public class CartController {
         @Valid @RequestBody CartAddRequest cartRequest,
         HttpServletRequest request
     ) {
-        return cartService.add(request.getSession(false), cartRequest.productId(), cartRequest.quantity());
+        return cartService.add(request.getSession(false), cartRequest.productId(), cartRequest.quantity(), cartRequest.size());
     }
 
     @PutMapping("/items/{productId}")
@@ -44,12 +45,16 @@ public class CartController {
         @Valid @RequestBody CartUpdateRequest cartRequest,
         HttpServletRequest request
     ) {
-        return cartService.update(request.getSession(false), productId, cartRequest.quantity());
+        return cartService.update(request.getSession(false), productId, cartRequest.quantity(), cartRequest.size());
     }
 
     @DeleteMapping("/items/{productId}")
-    public CartResponse removeItem(@PathVariable Long productId, HttpServletRequest request) {
-        return cartService.remove(request.getSession(false), productId);
+    public CartResponse removeItem(
+        @PathVariable Long productId,
+        @RequestParam(required = false) String size,
+        HttpServletRequest request
+    ) {
+        return cartService.remove(request.getSession(false), productId, size);
     }
 
     @DeleteMapping

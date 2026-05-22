@@ -8,6 +8,7 @@ public record CartAddRequest(
     Long productId,
     @NotNull(message = "La cantidad es obligatoria.")
     @Min(value = 1, message = "La cantidad debe ser mayor que 0.")
-    Integer quantity
+    Integer quantity,
+    String size
 ) {
 }

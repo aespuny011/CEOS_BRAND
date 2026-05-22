@@ -1,32 +1,68 @@
 <header class="nav" [class.nav--hidden]="!isVisible">
-  <a class="brand" routerLink="/" aria-label="Inicio">CEOS <span>BRAND</span></a>
+  <a class="brand" routerLink="/" aria-label="Inicio">
+    <img src="assets/img/ceos-logo.png" alt="CEOS Brand" />
+  </a>
 
-  <nav class="links" aria-label="Navegacion">
+  <nav class="links" aria-label="Navegación">
     <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Inicio</a>
 
     <ng-container *ngIf="authService.currentUser; else guestLinks">
       <ng-container *ngIf="authService.isAdmin; else customerMenu">
-        <a routerLink="/productos" routerLinkActive="active">Catalogo</a>
+        <a routerLink="/productos" routerLinkActive="active">Catálogo</a>
         <a routerLink="/nuevo" routerLinkActive="active">Añadir producto</a>
+        <a routerLink="/admin/pedidos" routerLinkActive="active">Pedidos</a>
       </ng-container>
 
       <ng-template #customerMenu>
-        <a routerLink="/productos" routerLinkActive="active">Catalogo</a>
+        <a routerLink="/sobre-nosotros" routerLinkActive="active">Sobre nosotros</a>
+        <a routerLink="/productos" routerLinkActive="active">Catálogo</a>
         <a routerLink="/carrito" routerLinkActive="active">
           Carrito <span class="count" *ngIf="cartService.totalItems > 0">{{ cartService.totalItems }}</span>
         </a>
+        <a routerLink="/ayuda" routerLinkActive="active">Ayuda</a>
+        <a routerLink="/contacto" routerLinkActive="active">Contáctanos</a>
       </ng-template>
 
-      <span class="user-chip">{{ authService.currentUser!.name }}</span>
-      <button type="button" class="logout-btn" (click)="cerrarSesion()">Cerrar sesion</button>
+      <details class="account-menu" #accountMenu>
+        <summary class="account-menu__button">
+          {{ authService.currentUser!.name }}
+        </summary>
+
+        <div class="account-menu__panel">
+          <ng-container *ngIf="!authService.isAdmin">
+            <a routerLink="/mi-perfil" routerLinkActive="active" (click)="closeAccountMenu()">Mi perfil</a>
+            <a routerLink="/mis-pedidos" routerLinkActive="active" (click)="closeAccountMenu()">Mis pedidos</a>
+          </ng-container>
+          <button type="button" (click)="pedirConfirmacionCerrarSesion()">Cerrar sesión</button>
+        </div>
+      </details>
     </ng-container>
 
     <ng-template #guestLinks>
+      <a routerLink="/sobre-nosotros" routerLinkActive="active">Sobre nosotros</a>
       <span class="locked locked--catalog">
-        <span class="locked__label">Catalogo</span>
+        <span class="locked__label">Catálogo</span>
       </span>
-      <a routerLink="/register" routerLinkActive="active">Registrate</a>
-      <a routerLink="/login" routerLinkActive="active">Inicia sesion</a>
+      <a routerLink="/ayuda" routerLinkActive="active">Ayuda</a>
+      <a routerLink="/register" routerLinkActive="active">Regístrate</a>
+      <a routerLink="/login" routerLinkActive="active">Inicia sesión</a>
     </ng-template>
   </nav>
 </header>
+
+<div class="logout-modal" *ngIf="showLogoutModal" (click)="cancelarCerrarSesion()">
+  <section class="logout-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="logout-modal-title" (click)="$event.stopPropagation()">
+    <p class="logout-modal__eyebrow">Cerrar sesion</p>
+    <h2 id="logout-modal-title">¿Seguro que quieres cerrar sesión?</h2>
+    <p>Volverás a la pantalla de inicio de sesión.</p>
+
+    <div class="logout-modal__actions">
+      <button type="button" class="logout-modal__button logout-modal__button--ghost" (click)="cancelarCerrarSesion()">
+        Cancelar
+      </button>
+      <button type="button" class="logout-modal__button" (click)="confirmarCerrarSesion()">
+        Cerrar sesión
+      </button>
+    </div>
+  </section>
+</div>

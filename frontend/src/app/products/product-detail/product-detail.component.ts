@@ -18,6 +18,7 @@ export class ProductDetailComponent implements OnInit {
   imagenSeleccionada = '';
   visorAbierto = false;
   confirmCartOpen = false;
+  selectedSize = '';
 
   constructor(
     private route: ActivatedRoute,
@@ -35,7 +36,7 @@ export class ProductDetailComponent implements OnInit {
     const id = Number(this.route.snapshot.paramMap.get('id'));
 
     if (Number.isNaN(id)) {
-      this.errorMsg = 'ID de producto invalido';
+      this.errorMsg = 'ID de producto inválido';
       this.loading = false;
       return;
     }
@@ -47,6 +48,7 @@ export class ProductDetailComponent implements OnInit {
         } else {
           this.producto = producto;
           this.imagenSeleccionada = producto.imageUrl;
+          this.selectedSize = this.firstAvailableSize(producto);
         }
         this.loading = false;
       },
@@ -66,7 +68,7 @@ export class ProductDetailComponent implements OnInit {
       Activo: 'ACTIVO',
       Oculto: 'OCULTO',
       Agotado: 'AGOTADO',
-      Proximamente: 'PROXIMAMENTE',
+      Proximamente: 'PRÓXIMAMENTE',
     };
 
     return estados[estado] || estado;
@@ -83,8 +85,7 @@ export class ProductDetailComponent implements OnInit {
       Camiseta: 'assets/img/ceos-tee.svg',
       Sudadera: 'assets/img/ceos-hoodie.svg',
       Pantalón: 'assets/img/ceos-pants.svg',
-      Accesorio: 'assets/img/ceos-cap.svg',
-      Chaqueta: 'assets/img/ceos-jacket.svg',
+      Gorra: 'assets/img/ceos-cap.svg',
     };
     return fallbacks[categoria] || 'assets/img/ceos-tee.svg';
   }
@@ -123,7 +124,36 @@ export class ProductDetailComponent implements OnInit {
   }
 
   canPurchase(): boolean {
-    return this.producto?.purchasable === true;
+    if (!this.producto?.purchasable) {
+      return false;
+    }
+
+    return !this.hasSizes() || this.stockForSize(this.selectedSize) > 0;
+  }
+
+  hasSizes(): boolean {
+    return (this.producto?.availableSizes?.length ?? 0) > 0;
+  }
+
+  selectSize(size: string): void {
+    if (!this.authService.isAdmin && this.stockForSize(size) <= 0) {
+      return;
+    }
+    this.selectedSize = size;
+  }
+
+  stockForSize(size: string): number {
+    return this.producto?.sizeStock?.[size] ?? 0;
+  }
+
+  private firstAvailableSize(producto: Product): string {
+    return producto.availableSizes?.find((size) => (producto.sizeStock?.[size] ?? 0) > 0)
+      ?? producto.availableSizes?.[0]
+      ?? '';
+  }
+
+  isSoldOut(): boolean {
+    return this.producto?.status !== 'Proximamente' && this.producto?.stock === 0;
   }
 
   requestAddToCart(): void {
@@ -143,7 +173,7 @@ export class ProductDetailComponent implements OnInit {
       return;
     }
 
-    this.cartService.addProduct(this.producto);
+    this.cartService.addProduct(this.producto, 1, this.selectedSize);
     this.confirmCartOpen = false;
   }
 }

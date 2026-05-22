@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.NotBlank;
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 
 public record ProductRequest(
     @NotBlank(message = "El nombre es obligatorio.")
@@ -17,6 +18,7 @@ public record ProductRequest(
     BigDecimal price,
     String imageUrl,
     List<String> images,
+    Map<String, Integer> sizeStock,
     @NotBlank(message = "La descripcion es obligatoria.")
     String description,
     @NotBlank(message = "El estado es obligatorio.")
